@@ -82,7 +82,11 @@ export const agencyDefaults:Agency[]=[
 ];
 export const money=(n:number)=>'Q'+(n/100).toLocaleString('es-GT',{minimumFractionDigits:n%100?2:0,maximumFractionDigits:2});
 export const states:Record<string,string>={received:'Recibido',confirmed:'Confirmado por caja',preparing:'En preparación',ready:'Listo',assigned:'Asignado',onway:'En ruta',delivered:'Entregado',cancelled:'Cancelado'};
-export function catalogFor(a:Agency){return products.map(p=>({...p,...(a.id==='peronia'&&p.id==='combo4'?{description:'Cuatro hamburguesas a tu elección, cuatro porciones de papas y una Coca-Cola de 1.5 litros para compartir.',includes:'4 hamburguesas a elección + 4 porciones de papas fritas + 1 Coca-Cola de 1.5 litros'}:{}),price:a.overrides[p.id]?.price??p.price,available:p.price!==null&&!p.pending&&a.overrides[p.id]?.available!==false&&(!p.agencyIds||p.agencyIds.includes(a.id))}));}
+export const burgerSides={fries:'Papas fritas',lays:'Bolsa de Lay’s'} as const;
+export type BurgerSide=keyof typeof burgerSides;
+export function validBurgerSide(side:unknown):side is BurgerSide{return side==='fries'||side==='lays';}
+export function burgerComboIncludes(p:Pick<Product,'includes'>,side?:BurgerSide){const drink=p.includes?.split(' y ').slice(1).join(' y ');return (side?burgerSides[side]:'Papas fritas o bolsa de Lay’s')+(drink?' y '+drink:'');}
+export function catalogFor(a:Agency){return products.map(p=>({...p,...(p.category==='Hamburguesas'?{includes:burgerComboIncludes(p)}:{}),...(a.id==='peronia'&&p.id==='combo4'?{description:'Cuatro hamburguesas a tu elección, cuatro porciones de papas y una Coca-Cola de 1.5 litros para compartir.',includes:'4 hamburguesas a elección + 4 porciones de papas fritas + 1 Coca-Cola de 1.5 litros'}:{}),price:a.overrides[p.id]?.price??p.price,available:p.price!==null&&!p.pending&&a.overrides[p.id]?.available!==false&&(!p.agencyIds||p.agencyIds.includes(a.id))}));}
 export function inHours(a:Agency,now=new Date()){const t=new Intl.DateTimeFormat('en-GB',{timeZone:'America/Guatemala',hour:'2-digit',minute:'2-digit',hour12:false}).format(now);return t>=a.open&&t<a.close;}
 export const roleNames:Record<string,string>={master:'Maestro general',manager:'Encargado',cashier:'Cajero',kitchen:'Cocina',driver:'Motorista'};
 
