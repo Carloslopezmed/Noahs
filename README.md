@@ -14,13 +14,17 @@ Logotipo oficial facilitado por el propietario, conservado en `assets/brand/`, c
 
 ## Complementos de Plaza Balcones
 
-Porciones de diez unidades: wantán tradicional Q55, camarón Q65 y cangrejo Q55. Se asignan inicialmente a Plaza Balcones, la agencia indicada con comida china. El precio genérico de Q55 se aplica a tradicional/cangrejo, con corrección expresa de camarón Q65. La autorización del catálogo restringe estos productos a esa agencia también en servidor.
+Porciones de diez unidades: wantán de pollo Q55, camarón Q65 y cangrejo Q55. Se asignan inicialmente a Plaza Balcones, la agencia indicada con comida china. El precio genérico de Q55 se aplica a pollo/cangrejo, con corrección expresa de camarón Q65. La autorización del catálogo restringe estos productos a esa agencia también en servidor.
 
 El archivo recibido como «WANTAN DE CANGREJO(1).png» era idéntico al de camarón y decía camarón. Se usa la foto genérica de wantán como ilustración para cangrejo hasta recibir la foto correcta.
 
 ## Portada y postres
 
 La Master protagoniza la portada con etiqueta **NUEVO**, fotografía individual y precios actualizados según agencia. Cheesecake Q20 se muestra en **Postres**.
+
+## Combos personalizables
+
+Combo Martes Q110: 2 hamburguesas; pa’3 Q165: 3; pa’4 Q225: 4; para6 Q334: 6. Se puede elegir cualquier hamburguesa del menú individual, incluso Quesoburguesa dentro del precio fijo del combo, sin inventar un precio para su venta individual. Se respetan las desactivaciones de productos por agencia. Todos incluyen una porción de papas y una bebida por hamburguesa; esta instrucción actualiza la descripción anterior de bebida de 1.5 litros compartida. El nombre «Martes» se conserva sin inventar una restricción de días. Las selecciones se guardan en el pedido, cocina y WhatsApp.
 
 ## Secciones del menú y sugerencia final
 
@@ -42,7 +46,7 @@ La fotografía de Plaza Balcones fue facilitada e identificada por el propietari
 - Horario: 09:00–20:00, zona horaria America/Guatemala. No se publican días específicos no confirmados.
 - Chicago Q30, Doridog Q30, Tradicional Q30 y Americano Q35, con los acompañamientos confirmados.
 - Acompañamientos: Papas Barbiquiu Q35 (barbacoa, ranch, tocino y cilantro), Cheesy Papas Q35 (queso y tocino), Papas Fritas 6 onzas Q10.
-- Doggy Dog y Quesoburguesa pendientes de precio. Combos Martes, pa’3 y pa’4 pendientes de completar composición/condiciones. El combo para6 exige seis selecciones.
+- Doggy Dog y Quesoburguesa pendientes de precio individual. Los combos Martes (2), pa’3, pa’4 y para6 exigen una selección por hamburguesa y se venden a sus precios confirmados. Cada hamburguesa incluye una porción de papas y una bebida.
 - Domicilio deshabilitado hasta configurar zonas y tarifas. Retiro disponible en agencias con WhatsApp verificado y pedidos habilitados, dentro del horario.
 - Fidelidad desactivada hasta definir si comparte sellos y premios entre agencias.
 
@@ -52,7 +56,7 @@ Las fotografías de hamburguesas son ilustrativas generadas con las referencias 
 
 ### Clientes
 1. Elegí una agencia antes de agregar productos. Cambiar de agencia vuelve a validar productos y precios y borra la zona de entrega anterior.
-2. Elegí productos y las seis hamburguesas si pedís el combo para6.
+2. Elegí productos. En los combos Martes (2), pa’3, pa’4 y para6, elegí cada hamburguesa mediante las tarjetas con fotografía. Los espacios numerados muestran tus selecciones y permiten cambiarlas; podés repetir hamburguesas. Cada una incluye papas y bebida. Es obligatorio completar todos los espacios antes de agregar el combo.
 3. Completá nombre, teléfono y modalidad. Para domicilio, elegí una zona configurada y una dirección completa.
 4. Registrá y abrí WhatsApp. **Pulsá enviar en WhatsApp** para solicitar la confirmación. La aplicación no envía mensajes automáticamente.
 5. Guardá el código y consultalo en **Seguí tu pedido**. La barra de carga evita consultas repetidas durante una solicitud.

@@ -1,6 +1,6 @@
 export type Product={id:string;name:string;price:number|null;description:string;image:string;category:string;includes?:string;choices?:number;pending?:string;comboImage?:string;upsell?:boolean;agencyIds?:string[]};
 export const products:Product[]=[
-{id:'wantan',name:'Wantán tradicional',price:5500,description:'Diez unidades de wantán para acompañar tu pedido y compartir el antojo.',image:'wantan',category:'Complementos',includes:'Porción de 10 unidades',agencyIds:['balcones']},
+{id:'wantan',name:'Wantán de pollo',price:5500,description:'Diez unidades de wantán de pollo para acompañar tu pedido y compartir el antojo.',image:'wantan-pollo',category:'Complementos',includes:'Porción de 10 unidades',agencyIds:['balcones']},
 {id:'wantan-camaron',name:'Wantán de camarón',price:6500,description:'Diez unidades de wantán de camarón. Un complemento para disfrutar cada bocado.',image:'wantan-camaron',category:'Complementos',includes:'Porción de 10 unidades',agencyIds:['balcones']},
 {id:'wantan-cangrejo',name:'Wantán de cangrejo',price:5500,description:'Diez unidades de wantán de cangrejo para completar tu pedido. Fotografía ilustrativa de wantán.',image:'wantan',category:'Complementos',includes:'Porción de 10 unidades',agencyIds:['balcones']},
 {id:'cheesecake',name:'Cheesecake',price:2000,description:'Una pausa dulce para cerrar tu pedido con el antojo de un cheesecake.',image:'cheesecake',category:'Postres'},
@@ -25,10 +25,10 @@ export const products:Product[]=[
 {id:'bufalo',name:'Búfalo Steak',price:5900,description:'Un toque picante para despertar el antojo. Sabor que se disfruta de principio a fin.',image:'bufalo',comboImage:'bufalo-combo',category:'Hamburguesas'},
 {id:'smash',name:'Smash Burger',price:6000,description:'Una favorita para disfrutar cada mordida. Elegí tu agencia y pedí la tuya.',image:'smash',comboImage:'smash-combo',category:'Hamburguesas'},
 {id:'queso',name:'Quesoburguesa',price:null,description:'Estamos completando los detalles de esta hamburguesa.',image:'queso',comboImage:'queso-combo',category:'Hamburguesas',pending:'Precio por confirmar'},
-{id:'combo6',name:'Combo para 6',price:33400,description:'Seis hamburguesas a tu elección, seis papas fritas y Coca-Cola de 1.5 litros. El antojo se comparte.',image:'combo6',category:'Para compartir',choices:6},
-{id:'combo3',name:'Como pa’ 3',price:16500,description:'Tres hamburguesas a tu elección para disfrutar en compañía.',image:'combo3',category:'Para compartir',pending:'Complementos por confirmar'},
-{id:'combo4',name:'Combo Clásico pa’ 4',price:22500,description:'Una opción para compartir entre cuatro.',image:'combo4',category:'Para compartir',pending:'Contenido por confirmar'},
-{id:'martes',name:'Combo Martes',price:11000,description:'Un combo para compartir el antojo.',image:'martes',category:'Para compartir',pending:'Condiciones por confirmar'},
+{id:'combo6',name:'Combo para 6',price:33400,description:'Seis hamburguesas a tu elección, con una porción de papas y una bebida por hamburguesa. El antojo se comparte.',image:'combo6',category:'Para compartir',choices:6,includes:'6 porciones de papas fritas y 6 bebidas'},
+{id:'combo3',name:'Como pa’ 3',price:16500,description:'Elegí tres hamburguesas del menú. Cada una lleva su porción de papas y su bebida.',image:'combo3',category:'Para compartir',choices:3,includes:'3 porciones de papas fritas y 3 bebidas'},
+{id:'combo4',name:'Combo Clásico pa’ 4',price:22500,description:'Cuatro hamburguesas a tu elección para compartir, cada una con papas y bebida.',image:'combo4',category:'Para compartir',choices:4,includes:'4 porciones de papas fritas y 4 bebidas'},
+{id:'martes',name:'Combo Martes',price:11000,description:'Elegí dos hamburguesas del menú. Cada una viene con su porción de papas y su bebida.',image:'martes',category:'Para compartir',choices:2,includes:'2 porciones de papas fritas y 2 bebidas'},
 ];
 export type Agency={id:string;name:string;short:string;phone:string;whatsapp:string;address:string;open:string;close:string;accepting:boolean;chinese:boolean;zones:{name:string;fee:number}[];overrides:Record<string,{available?:boolean;price?:number}>};
 export const agencyDefaults:Agency[]=[
@@ -54,3 +54,6 @@ export function menuEntries(items:(Product&{available?:boolean})[]):MenuEntry[]{
  result.push({...p,displayVariant:variant,displayCategory,displayName:p.category==='Hamburguesas'&&variant==='combo'?'Combo '+p.name:p.name,displayImage:imageFor(p,variant),displayPrice:p.price===null?null:itemPrice(p,variant),listingKey:p.id+':'+variant});
  }}return result;
 }
+
+// Family combos have a fixed total: standalone prices do not restrict the burger choice.
+export function comboBurgerOptions(a:Agency){return products.filter(p=>p.category==='Hamburguesas'&&a.overrides[p.id]?.available!==false&&(!p.agencyIds||p.agencyIds.includes(a.id)));}
