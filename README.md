@@ -147,10 +147,12 @@ Super Combo de Sopas Mixtas Q180: 2 sopas (cada una Mein o Ramen), una carne par
 
 Chapsuey en comida china: una tarjeta con fotografía ilustrativa y selector obligatorio. Pollo/lomito Q80, camarón Q85 (+Q5), mixto Q90 (+Q10). Solo Plaza Balcones; no se añaden bebidas, pesos ni acompañamientos no confirmados. Precio y carne identificados en servidor, carrito y WhatsApp.
 
-Los wantanes también aparecen con sus fotos en el módulo Comida china, además de Complementos: pollo Q55, camarón Q65 y cangrejo Q55 (10 unidades). Se reutilizan los mismos productos, precios, disponibilidad y fotografías del catálogo. Cangrejo conserva foto ilustrativa de wantán.
+Los wantanes también aparecen con sus fotos en el módulo Comida china, además de Complementos: pollo Q55, camarón Q65 y cangrejo Q55 (10 unidades). Se reutilizan los mismos productos, precios, disponibilidad y fotografías del catálogo. Cangrejo usa la foto suministrada con título Wantán de Cangrejo.
 
 Chili Garlic Q25 visible también en Complementos, con la misma fotografía y producto. Mantiene la sugerencia opcional al finalizar el pedido, con el mismo control de disponibilidad y total.
 
 Últimos precios confirmados Sopa Mein: pollo Q65, lomito Q65, camarón Q70, mixta Q75. Imagen suministrada como sopa mein.png.
 
 Combo Familiar de Comida China: arroz frito 2 lb + chao mein 2 lb + Coca-Cola 1.5 L. Una carne elegida para el combo: pollo/camarón/lomito Q215, mixto Q225 (+Q10). Una tarjeta con foto y selector; solo Plaza Balcones. La foto suministrada muestra wantán, pero el contenido confirmado no lo incluye: se aclara que se pide por separado.
+
+Actualizada la foto específica de wantán de cangrejo en catálogo, Complementos, Comida china, detalle y carrito. Presentación completa para conservar el título de la imagen. Precio Q55 y porción de 10 unidades.

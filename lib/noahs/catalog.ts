@@ -46,7 +46,7 @@ export const products:Product[]=[
 {id:'quesadilla',name:'Quesadilla',price:4500,description:'Una quesadilla para consentir tu antojo. Disfrutala en combo con papas y gaseosa.',image:'quesadilla',category:'Combos',includes:'Papas y gaseosa'},
 {id:'wantan',name:'Wantán de pollo',price:5500,description:'Diez unidades de wantán de pollo para acompañar tu pedido y compartir el antojo.',image:'wantan-pollo',category:'Complementos',includes:'Porción de 10 unidades',agencyIds:['balcones']},
 {id:'wantan-camaron',name:'Wantán de camarón',price:6500,description:'Diez unidades de wantán de camarón. Un complemento para disfrutar cada bocado.',image:'wantan-camaron',category:'Complementos',includes:'Porción de 10 unidades',agencyIds:['balcones']},
-{id:'wantan-cangrejo',name:'Wantán de cangrejo',price:5500,description:'Diez unidades de wantán de cangrejo para completar tu pedido. Fotografía ilustrativa de wantán.',image:'wantan',category:'Complementos',includes:'Porción de 10 unidades',agencyIds:['balcones']},
+{id:'wantan-cangrejo',name:'Wantán de cangrejo',price:5500,description:'Diez unidades de wantán de cangrejo para completar tu pedido.',image:'wantan-cangrejo',category:'Complementos',includes:'Porción de 10 unidades',agencyIds:['balcones']},
 {id:'cheesecake',name:'Cheesecake',price:2000,description:'Una pausa dulce para cerrar tu pedido con el antojo de un cheesecake.',image:'cheesecake',category:'Postres'},
 {id:'chili',name:'Chili Garlic',price:2500,description:'Un extra de ajo y picante para darle más sabor a tu pedido.',image:'chili',category:'Complementos',upsell:true},
 {id:'smash2',name:'Combo 2 Smash Burger',price:12000,description:'Dos Smash Burger para compartir el antojo.',image:'smash2',category:'Para compartir',includes:'2 Smash Burger'},
