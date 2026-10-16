@@ -54,14 +54,14 @@ La fotografía de Plaza Balcones fue facilitada e identificada por el propietari
 
 ## Datos comerciales cargados
 
-- Plaza Balcones / San Cristóbal: 5464 0659, 5.ª avenida 4-39, Mixco. WhatsApp pendiente de verificar. Comida china: Combo Favorito Q165 y wantán en Complementos.
+- Plaza Balcones / San Cristóbal: 5464 0659, 5.ª avenida 4-39, Mixco. WhatsApp 50254640659. Comida china: Combo Favorito Q165 y wantán en Complementos.
 - Ciudad Peronia: WhatsApp 50259102450. Dirección pendiente.
-- Ciudad Satélite: 5614 2755. WhatsApp y dirección pendientes.
+- Ciudad Satélite: 5614 2755. WhatsApp 50256142755; dirección pendiente.
 - Horario: 11:00–21:00, zona horaria America/Guatemala. No se publican días específicos no confirmados.
 - Chicago Q30, Doridog Q30, Tradicional Q30 y Americano Q35, con los acompañamientos confirmados.
 - Acompañamientos: Papas Barbiquiu Q35 (barbacoa, ranch, tocino y cilantro), Cheesy Papas Q35 (queso y tocino), Papas Fritas 6 onzas Q10.
 - Doggy Dog pendiente de precio y composición. Quesoburguesa: combo Q40, sola Q30; torta de ¼ de libra, aderezos, pepinillos y pan gourmet. El combo incluye papas y Coca-Cola en lata de 237 ml. Combo 2 Smash Burger Q120, con dos Smash Burger fijas. Los combos Martes (2), pa’3, pa’4 y para6 exigen una selección por hamburguesa y se venden a sus precios confirmados. Cada hamburguesa incluye una porción de papas y una bebida.
-- Domicilio deshabilitado hasta configurar zonas y tarifas. Retiro disponible en agencias con WhatsApp verificado y pedidos habilitados, dentro del horario.
+- Domicilio habilitado con envío gratis en las tres agencias. Sin zonas configuradas, el cliente solicita con dirección y ubicación y la agencia confirma cobertura antes de aceptar. Retiro disponible en agencias con WhatsApp verificado y pedidos habilitados, dentro del horario.
 - Fidelidad desactivada hasta definir si comparte sellos y premios entre agencias.
 
 Las fotografías de hamburguesas son ilustrativas generadas con las referencias facilitadas. Las fotos de hot dogs y combos provienen de los archivos facilitados. Revisar contra las recetas definitivas antes de publicidad comercial.
@@ -163,4 +163,6 @@ Descripción confirmada de Smash Burger: ¼ de libra de carne, queso, pepinillos
 
 Comida china (incluidos wantanes): venta únicamente desde Plaza Balcones. Ciudad Peronia y Ciudad Satélite no tienen catálogo chino. En pedidos a domicilio, se bloquea comida china para Ciudad Peronia por zona o dirección indicada; cliente ve aviso y servidor rechaza el pedido, incluido carrito mixto. Retiro en Plaza Balcones permitido. Otras zonas siguen sujetas a la cobertura configurada. La detección textual no sustituye una validación geográfica de direcciones.
 
-Ubicación de entrega: al salir del campo dirección se solicita GPS con permiso explícito o enlace de Google Maps con coordenadas / coordenadas pegadas. El cliente revisa el mapa y confirma el punto antes de registrar un domicilio. Coordenadas finitas y rangos validados en servidor; columna nullable en pedidos para conservar historial anterior. El enlace se incluye en WhatsApp y en el detalle para agencia/motorista; cocina y seguimiento público no lo reciben. Retiro no solicita ni guarda ubicación. Editar la dirección exige reconfirmar. No se resuelven enlaces cortos ni se geocodifican direcciones; el punto no confirma cobertura ni reemplaza las zonas/tarifas verificadas. Se mantiene la restricción de comida china a Ciudad Peronia por zona/dirección declarada.
+Ubicación de entrega: al salir del campo dirección se solicita GPS con permiso explícito o enlace de Google Maps con coordenadas / coordenadas pegadas. El cliente revisa el mapa y confirma el punto antes de registrar un domicilio. Coordenadas finitas y rangos validados en servidor; columna nullable en pedidos para conservar historial anterior. El enlace se incluye en WhatsApp y en el detalle para agencia/motorista; cocina y seguimiento público no lo reciben. Retiro no solicita ni guarda ubicación. Editar la dirección exige reconfirmar. No se resuelven enlaces cortos ni se geocodifican direcciones; el punto no confirma cobertura. El envío gratis no implica cobertura universal; la agencia confirma antes de aceptar. Se mantiene la restricción de comida china a Ciudad Peronia por zona/dirección declarada.
+
+Envío gratis confirmado: Plaza Balcones 50254640659, Peronia 50259102450, Satélite 50256142755. Configuración inicial se aplica una sola vez con evento por agencia, conserva demás datos y respeta ediciones posteriores. El servidor calcula envío Q0; se mantiene la restricción de comida china a Peronia.

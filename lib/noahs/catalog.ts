@@ -74,11 +74,11 @@ export const products:Product[]=[
 {id:'combo4',name:'Combo Clásico pa’ 4',price:22500,description:'Cuatro hamburguesas a tu elección para compartir, cada una con papas y bebida.',image:'combo4',category:'Para compartir',choices:4,includes:'4 porciones de papas fritas y 4 bebidas'},
 {id:'martes',name:'Combo Martes',price:11000,description:'Elegí dos hamburguesas del menú. Cada una viene con su porción de papas y su bebida.',image:'martes',category:'Para compartir',choices:2,includes:'2 porciones de papas fritas y 2 bebidas'},
 ];
-export type Agency={id:string;name:string;short:string;phone:string;whatsapp:string;address:string;open:string;close:string;accepting:boolean;chinese:boolean;zones:{name:string;fee:number}[];overrides:Record<string,{available?:boolean;price?:number}>};
+export type Agency={id:string;name:string;short:string;phone:string;whatsapp:string;address:string;open:string;close:string;accepting:boolean;chinese:boolean;deliveryEnabled?:boolean;freeDelivery?:boolean;zones:{name:string;fee:number}[];overrides:Record<string,{available?:boolean;price?:number}>};
 export const agencyDefaults:Agency[]=[
-{id:'balcones',name:'San Cristóbal · Plaza Balcones',short:'Plaza Balcones',phone:'5464 0659',whatsapp:'',address:'5.ª avenida 4-39, Mixco',open:'11:00',close:'21:00',accepting:true,chinese:true,zones:[],overrides:{}},
-{id:'peronia',name:'Ciudad Peronia',short:'Ciudad Peronia',phone:'5910 2450',whatsapp:'50259102450',address:'Dirección por confirmar',open:'11:00',close:'21:00',accepting:true,chinese:false,zones:[],overrides:{}},
-{id:'satelite',name:'Ciudad Satélite',short:'Ciudad Satélite',phone:'5614 2755',whatsapp:'',address:'Dirección por confirmar',open:'11:00',close:'21:00',accepting:true,chinese:false,zones:[],overrides:{}},
+{id:'balcones',name:'San Cristóbal · Plaza Balcones',short:'Plaza Balcones',phone:'5464 0659',whatsapp:'50254640659',address:'5.ª avenida 4-39, Mixco',open:'11:00',close:'21:00',accepting:true,chinese:true,deliveryEnabled:true,freeDelivery:true,zones:[],overrides:{}},
+{id:'peronia',name:'Ciudad Peronia',short:'Ciudad Peronia',phone:'5910 2450',whatsapp:'50259102450',address:'Dirección por confirmar',open:'11:00',close:'21:00',accepting:true,chinese:false,deliveryEnabled:true,freeDelivery:true,zones:[],overrides:{}},
+{id:'satelite',name:'Ciudad Satélite',short:'Ciudad Satélite',phone:'5614 2755',whatsapp:'50256142755',address:'Dirección por confirmar',open:'11:00',close:'21:00',accepting:true,chinese:false,deliveryEnabled:true,freeDelivery:true,zones:[],overrides:{}},
 ];
 export const money=(n:number)=>'Q'+(n/100).toLocaleString('es-GT',{minimumFractionDigits:n%100?2:0,maximumFractionDigits:2});
 export const states:Record<string,string>={received:'Recibido',confirmed:'Confirmado por caja',preparing:'En preparación',ready:'Listo',assigned:'Asignado',onway:'En ruta',delivered:'Entregado',cancelled:'Cancelado'};
