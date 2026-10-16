@@ -28,11 +28,11 @@ Gigante Tortilla Q40, Tortiburguer Q50 y Quesadilla Q45. Todos incluyen papas y 
 
 ## Combos personalizables
 
-Combo Martes Q110: 2 hamburguesas; pa’3 Q165: 3; pa’4 Q225: 4; para6 Q334: 6. Se puede elegir cualquier hamburguesa del menú individual, incluso Quesoburguesa dentro del precio fijo del combo, sin inventar un precio para su venta individual. Se respetan las desactivaciones de productos por agencia. Todos incluyen una porción de papas y una bebida por hamburguesa; esta instrucción actualiza la descripción anterior de bebida de 1.5 litros compartida. El nombre «Martes» se conserva sin inventar una restricción de días. Las selecciones se guardan en el pedido, cocina y WhatsApp.
+Combo Martes Q110: 2 hamburguesas; pa’3 Q165: 3; pa’4 Q225: 4; para6 Q334: 6. Se puede elegir cualquier hamburguesa del menú individual, incluida Quesoburguesa, dentro del precio fijo del combo. Se respetan las desactivaciones de productos por agencia. Todos incluyen una porción de papas y una bebida por hamburguesa; esta instrucción actualiza la descripción anterior de bebida de 1.5 litros compartida. El nombre «Martes» se conserva sin inventar una restricción de días. Las selecciones se guardan en el pedido, cocina y WhatsApp.
 
 ## Secciones del menú y sugerencia final
 
-Las fotos con acompañamientos se muestran en **Combos**, incluidas las nuevas fotos proporcionadas por el propietario. Las fotos individuales están en **Hamburguesas**, con precio Q10 menor. El selector de variante cambia foto y precio, y el carrito conserva ambos. La foto de 2 Smash Burger aparece pendiente de precio.
+Las fotos con acompañamientos se muestran en **Combos**, incluidas las nuevas fotos proporcionadas por el propietario. Las fotos individuales están en **Hamburguesas**, con precio Q10 menor. El selector de variante cambia foto y precio, y el carrito conserva ambos. El Combo 2 Smash Burger se vende a Q120 con su foto correspondiente.
 
 **Chili Garlic Q25** se ofrece al final del carrito, antes del total y la confirmación. Es opcional, nunca se agrega automáticamente. Respeta disponibilidad y precio por agencia y se registra como un producto normal en pedido y WhatsApp.
 
@@ -50,7 +50,7 @@ La fotografía de Plaza Balcones fue facilitada e identificada por el propietari
 - Horario: 09:00–20:00, zona horaria America/Guatemala. No se publican días específicos no confirmados.
 - Chicago Q30, Doridog Q30, Tradicional Q30 y Americano Q35, con los acompañamientos confirmados.
 - Acompañamientos: Papas Barbiquiu Q35 (barbacoa, ranch, tocino y cilantro), Cheesy Papas Q35 (queso y tocino), Papas Fritas 6 onzas Q10.
-- Doggy Dog y Quesoburguesa pendientes de precio individual. Los combos Martes (2), pa’3, pa’4 y para6 exigen una selección por hamburguesa y se venden a sus precios confirmados. Cada hamburguesa incluye una porción de papas y una bebida.
+- Doggy Dog pendiente de precio y composición. Quesoburguesa: combo Q40, sola Q30; torta de ¼ de libra, aderezos, pepinillos y pan gourmet. El combo incluye papas y Coca-Cola en lata de 237 ml. Combo 2 Smash Burger Q120, con dos Smash Burger fijas. Los combos Martes (2), pa’3, pa’4 y para6 exigen una selección por hamburguesa y se venden a sus precios confirmados. Cada hamburguesa incluye una porción de papas y una bebida.
 - Domicilio deshabilitado hasta configurar zonas y tarifas. Retiro disponible en agencias con WhatsApp verificado y pedidos habilitados, dentro del horario.
 - Fidelidad desactivada hasta definir si comparte sellos y premios entre agencias.
 
