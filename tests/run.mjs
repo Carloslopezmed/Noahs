@@ -122,8 +122,8 @@ for(const [id,price] of [['arroz-frito-mixto',8500],['arroz-frito-camaron',8500]
 
 
 const soupAgency=(await call({action:'catalog'})).agencies.find(a=>a.id==='balcones');
-for(const kind of ['mein','ramen'])for(const [meat,price] of [['pollo',7500],['lomito',7500],['mixta',8500],['camaron',8500]]){
- const id=`sopa-${kind}-${meat}`,product=catalogFor(soupAgency).find(p=>p.id===id);check(product.price,price);check(product.includes,'1 sopa + bebida');
+for(const kind of ['mein','ramen'])for(const [meat,basePrice] of [['pollo',7500],['lomito',7500],['mixta',8500],['camaron',8500]]){
+ const price=kind==='mein'?(meat==='mixta'?8500:meat==='camaron'?8000:7000):basePrice;const id=`sopa-${kind}-${meat}`,product=catalogFor(soupAgency).find(p=>p.id===id);check(product.price,price);check(product.includes,'1 sopa + bebida');
  const placed=await call({...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:soupAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:price});check(placed.total,price);check(decodeURIComponent(placed.whatsapp).includes(product.name),true);check(decodeURIComponent(placed.whatsapp).includes('1 sopa + bebida'),true);
  await denied({...base,key:crypto.randomUUID(),agencyRevision:drinkAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:price});
  if(price===8500)await denied({...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:soupAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:7500},'',409);
