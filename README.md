@@ -146,3 +146,7 @@ Combo Favorito con selector obligatorio de carne: pollo/camarón/lomito Q165, mi
 Super Combo de Sopas Mixtas Q180: 2 sopas (cada una Mein o Ramen), una carne para ambas (solo lomito, pollo, camarón o mixtas), 10 wantanes de pollo o lomito, 2 gaseosas. Wantán de camarón +Q10 por combo: Q190. Selector obligatorio validado en servidor, recargo calculado desde catálogo, resumen inmutable y WhatsApp con cada selección; únicamente Plaza Balcones. La carne de las sopas no tiene recargo en este combo.
 
 Chapsuey en comida china: una tarjeta con fotografía ilustrativa y selector obligatorio. Pollo/lomito Q80, camarón Q85 (+Q5), mixto Q90 (+Q10). Solo Plaza Balcones; no se añaden bebidas, pesos ni acompañamientos no confirmados. Precio y carne identificados en servidor, carrito y WhatsApp.
+
+Los wantanes también aparecen con sus fotos en el módulo Comida china, además de Complementos: pollo Q55, camarón Q65 y cangrejo Q55 (10 unidades). Se reutilizan los mismos productos, precios, disponibilidad y fotografías del catálogo. Cangrejo conserva foto ilustrativa de wantán.
+
+Chili Garlic Q25 visible también en Complementos, con la misma fotografía y producto. Mantiene la sugerencia opcional al finalizar el pedido, con el mismo control de disponibilidad y total.

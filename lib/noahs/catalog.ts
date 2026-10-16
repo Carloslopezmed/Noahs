@@ -44,7 +44,7 @@ export const products:Product[]=[
 {id:'wantan-camaron',name:'Wantán de camarón',price:6500,description:'Diez unidades de wantán de camarón. Un complemento para disfrutar cada bocado.',image:'wantan-camaron',category:'Complementos',includes:'Porción de 10 unidades',agencyIds:['balcones']},
 {id:'wantan-cangrejo',name:'Wantán de cangrejo',price:5500,description:'Diez unidades de wantán de cangrejo para completar tu pedido. Fotografía ilustrativa de wantán.',image:'wantan',category:'Complementos',includes:'Porción de 10 unidades',agencyIds:['balcones']},
 {id:'cheesecake',name:'Cheesecake',price:2000,description:'Una pausa dulce para cerrar tu pedido con el antojo de un cheesecake.',image:'cheesecake',category:'Postres'},
-{id:'chili',name:'Chili Garlic',price:2500,description:'Un extra de ajo y picante para darle más sabor a tu pedido.',image:'chili',category:'Acompañamientos',upsell:true},
+{id:'chili',name:'Chili Garlic',price:2500,description:'Un extra de ajo y picante para darle más sabor a tu pedido.',image:'chili',category:'Complementos',upsell:true},
 {id:'smash2',name:'Combo 2 Smash Burger',price:12000,description:'Dos Smash Burger para compartir el antojo.',image:'smash2',category:'Para compartir',includes:'2 Smash Burger'},
 {id:'papas-bbq',name:'Papas Barbiquiu',price:3500,description:'Papas bañadas con barbacoa y ranch, con tocino y un toque de cilantro. Una combinación intensa para compartir… o no.',image:'papas-bbq',category:'Acompañamientos'},
 {id:'cheesy-papas',name:'Cheesy Papas',price:3500,description:'Papas fritas con queso y tocino. El antojo perfecto para quienes siempre quieren un poco más de queso.',image:'cheesy-papas',category:'Acompañamientos'},
@@ -89,7 +89,7 @@ export function imageFor(p:Product|undefined,variant?:string){return p?(variant=
 export type MenuEntry=Product&{available?:boolean;displayVariant:string;displayCategory:string;displayName:string;displayImage:string;displayPrice:number|null;listingKey:string};
 export function menuEntries(items:(Product&{available?:boolean})[]):MenuEntry[]{
  const result:MenuEntry[]=[];
- for(const p of items){if(p.upsell)continue;for(const variant of p.category==='Hamburguesas'?['single','combo']:['regular']){
+ for(const p of items){if(p.upsell&&p.id!=='chili')continue;for(const variant of p.category==='Hamburguesas'?['single','combo']:['regular']){
  const displayCategory=p.category==='Hamburguesas'?(variant==='single'?'Hamburguesas':'Combos'):p.category==='Para compartir'?'Combos':p.category;
  result.push({...p,displayVariant:variant,displayCategory,displayName:p.category==='Hamburguesas'&&variant==='combo'?'Combo '+p.name:p.name,displayImage:imageFor(p,variant),displayPrice:p.price===null?null:itemPrice(p,variant),listingKey:p.id+':'+variant});
  }}return result;
