@@ -142,3 +142,5 @@ Sopa Mein actualizada con foto propia al seleccionarla; el selector muestra el p
 Combo Express con selector obligatorio de carne en una tarjeta: pollo/lomito Q95, camarón Q100 (+Q5), mixto Q105 (+Q10); arroz frito, wantán y Pepsi 1.5 L. El id original corresponde a pollo; cada opción tiene precio validado por servidor y nombre específico en pedido/WhatsApp.
 
 Combo Favorito con selector obligatorio de carne: pollo/camarón/lomito Q165, mixto Q180 (+Q15). Una carne elegida para el combo; mantiene arroz frito 2 lb, chao mein 2 lb, 10 wantanes y Pepsi 1.5 L. Precio y nombre de carne validados en servidor.
+
+Super Combo de Sopas Mixtas Q180: 2 sopas (cada una Mein o Ramen), una carne para ambas (solo lomito, pollo, camarón o mixtas), 10 wantanes de pollo o lomito, 2 gaseosas. Wantán de camarón +Q10 por combo: Q190. Selector obligatorio validado en servidor, recargo calculado desde catálogo, resumen inmutable y WhatsApp con cada selección; únicamente Plaza Balcones. La carne de las sopas no tiene recargo en este combo.

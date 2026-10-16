@@ -147,4 +147,20 @@ for(const [id,price] of [['combo-favorito-chino',16500],['combo-favorito-chino-c
  await denied({...base,key:crypto.randomUUID(),agencyRevision:drinkAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:price});
 }
 
+
+const superAgency=(await call({action:'catalog'})).agencies.find(a=>a.id==='balcones'),superProduct=catalogFor(superAgency).find(p=>p.id==='super-combo-sopas');
+const {resolveSoupBundle,itemPrice}=await import('../.sites-runtime/tests/catalog.mjs');
+for(const first of ['mein','ramen'])for(const second of ['mein','ramen'])for(const meat of ['lomito','pollo','camaron','mixtas'])for(const wantan of ['pollo','lomito','camaron']){
+ const selected={soups:[first,second],meat,wantan};check(itemPrice(superProduct,'regular',selected),wantan==='camaron'?19000:18000);check(resolveSoupBundle(selected).labels.length,3);
+}
+for(const [selection,quantity,total] of [
+ [{soups:['mein','ramen'],meat:'mixtas',wantan:'pollo'},1,18000],
+ [{soups:['ramen','ramen'],meat:'camaron',wantan:'lomito'},1,18000],
+ [{soups:['mein','mein'],meat:'pollo',wantan:'camaron'},2,38000],
+ [{soups:['ramen','mein'],meat:'lomito',wantan:'camaron'},1,19000]
+]){const placed=await call({...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:superAgency.revision,mode:'pickup',items:[{id:superProduct.id,quantity,variant:'regular',selection}],total});check(placed.total,total);const snapshot=JSON.parse(sqlite.prepare('SELECT items FROM orders WHERE code=?').get(placed.code).items)[0];check(snapshot.choices,resolveSoupBundle(selection).labels);check(snapshot.includes,'2 sopas Mein o Ramen + 10 wantanes + 2 gaseosas');check(decodeURIComponent(placed.whatsapp).includes(resolveSoupBundle(selection).labels[2]),true);}
+for(const selection of [undefined,{}, {soups:['mein'],meat:'pollo',wantan:'pollo'},{soups:['mein','ramen'],meat:'no-existe',wantan:'pollo'},{soups:['mein','ramen'],meat:'pollo',wantan:'cangrejo'}])await denied({...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:superAgency.revision,mode:'pickup',items:[{id:superProduct.id,quantity:1,variant:'regular',selection}],total:18000});
+await denied({...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:superAgency.revision,mode:'pickup',items:[{id:superProduct.id,quantity:1,variant:'regular',selection:{soups:['mein','ramen'],meat:'pollo',wantan:'camaron'}}],total:18000},'',409);
+await denied({...base,key:crypto.randomUUID(),agencyRevision:drinkAgency.revision,mode:'pickup',items:[{id:superProduct.id,quantity:1,variant:'regular',selection:{soups:['mein','ramen'],meat:'pollo',wantan:'pollo'}}],total:18000});
+
 console.log(`PASS: ${assertions} checks; isolated SQLite service tests, no production data, WhatsApp or payment requests.`);

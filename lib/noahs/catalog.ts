@@ -1,5 +1,6 @@
-export type Product={id:string;name:string;price:number|null;description:string;image:string;category:string;includes?:string;choices?:number;pending?:string;comboImage?:string;upsell?:boolean;agencyIds?:string[]};
+export type Product={id:string;name:string;price:number|null;description:string;image:string;category:string;includes?:string;choices?:number;pending?:string;comboImage?:string;upsell?:boolean;agencyIds?:string[];soupBundle?:boolean};
 export const products:Product[]=[
+{id:'super-combo-sopas',name:'Super Combo de Sopas Mixtas',price:18000,description:'Dos sopas a tu gusto, wantán para compartir y dos gaseosas. Elegí Mein o Ramen, tu carne favorita y el relleno del wantán.',image:'super-combo-sopas',category:'Comida china',includes:'2 sopas Mein o Ramen + 10 wantanes + 2 gaseosas',agencyIds:['balcones'],soupBundle:true},
 {id:'combo-favorito-chino-camaron',name:'Combo Favorito de camarón',price:16500,description:'Compartí el antojo con arroz frito, chao mein, wantán y Pepsi. Todo en un solo combo.',image:'combo-favorito-chino',category:'Comida china',includes:'1 arroz frito de 2 lb + 1 chao mein de 2 lb + 10 unidades de wantán + Pepsi de 1.5 litros',agencyIds:['balcones']},
 {id:'combo-favorito-chino-lomito',name:'Combo Favorito de lomito',price:16500,description:'Compartí el antojo con arroz frito, chao mein, wantán y Pepsi. Todo en un solo combo.',image:'combo-favorito-chino',category:'Comida china',includes:'1 arroz frito de 2 lb + 1 chao mein de 2 lb + 10 unidades de wantán + Pepsi de 1.5 litros',agencyIds:['balcones']},
 {id:'combo-favorito-chino-mixto',name:'Combo Favorito mixto',price:18000,description:'Compartí el antojo con arroz frito, chao mein, wantán y Pepsi. Todo en un solo combo.',image:'combo-favorito-chino',category:'Comida china',includes:'1 arroz frito de 2 lb + 1 chao mein de 2 lb + 10 unidades de wantán + Pepsi de 1.5 litros',agencyIds:['balcones']},
@@ -78,7 +79,7 @@ export function inHours(a:Agency,now=new Date()){const t=new Intl.DateTimeFormat
 export const roleNames:Record<string,string>={master:'Maestro general',manager:'Encargado',cashier:'Cajero',kitchen:'Cocina',driver:'Motorista'};
 
 // The base hamburger price is its combo price. Single burgers cost Q10 less.
-export function itemPrice(p:Pick<Product,'price'|'category'>|undefined,variant?:string){if(!p||p.price===null)return 0;return p.price-(p.category==='Hamburguesas'&&variant==='single'?1000:0);}
+export function itemPrice(p:Pick<Product,'price'|'category'|'soupBundle'>|undefined,variant?:string,selection?:unknown){if(!p||p.price===null)return 0;return p.price+(p.soupBundle?(resolveSoupBundle(selection)?.extra||0):0)-(p.category==='Hamburguesas'&&variant==='single'?1000:0);}
 
 export function imageFor(p:Product|undefined,variant?:string){return p?(variant==='combo'&&p.comboImage?p.comboImage:p.image):'';}
 export type MenuEntry=Product&{available?:boolean;displayVariant:string;displayCategory:string;displayName:string;displayImage:string;displayPrice:number|null;listingKey:string};
@@ -92,3 +93,12 @@ export function menuEntries(items:(Product&{available?:boolean})[]):MenuEntry[]{
 
 // Family combos have a fixed total: standalone prices do not restrict the burger choice.
 export function comboBurgerOptions(a:Agency){return products.filter(p=>p.category==='Hamburguesas'&&a.overrides[p.id]?.available!==false&&(!p.agencyIds||p.agencyIds.includes(a.id)));}
+
+export type SoupBundleSelection={soups:[string,string];meat:string;wantan:string};
+export const soupMeats:Record<string,string>={lomito:'Solo lomito',pollo:'Solo pollo',camaron:'Solo camarón',mixtas:'Mixtas'};
+export const wantanFillings:Record<string,string>={pollo:'Pollo',lomito:'Lomito',camaron:'Camarón'};
+export function resolveSoupBundle(value:unknown){
+ if(!value||typeof value!=='object')return null;const s=value as SoupBundleSelection;
+ if(typeof s.meat!=='string'||typeof s.wantan!=='string'||!Array.isArray(s.soups)||s.soups.length!==2||s.soups.some(k=>!['mein','ramen'].includes(k))||!Object.hasOwn(soupMeats,s.meat)||!Object.hasOwn(wantanFillings,s.wantan))return null;
+ return {extra:s.wantan==='camaron'?1000:0,labels:[...s.soups.map((kind,i)=>`Sopa ${i+1}: ${kind==='mein'?'Mein':'Ramen'} · ${soupMeats[s.meat]}`),`10 wantanes de ${wantanFillings[s.wantan].toLowerCase()}`]};
+}
