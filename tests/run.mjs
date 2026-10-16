@@ -172,4 +172,13 @@ for(const [meat,price] of [['pollo',8000],['lomito',8000],['camaron',8500],['mix
  await denied({...base,key:crypto.randomUUID(),agencyRevision:drinkAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:price});
 }
 
+
+const familyChinaAgency=(await call({action:'catalog'})).agencies.find(a=>a.id==='balcones');
+for(const [meat,price] of [['pollo',21500],['camaron',21500],['lomito',21500],['mixto',22500]]){
+ const id='combo-familiar-chino-'+meat,product=catalogFor(familyChinaAgency).find(p=>p.id===id);check(product.price,price);check(product.includes,'1 arroz frito de 2 lb + 1 chao mein de 2 lb + Coca-Cola de 1.5 litros');
+ const placed=await call({...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:familyChinaAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:price});check(placed.total,price);check(decodeURIComponent(placed.whatsapp).includes(product.name),true);check(decodeURIComponent(placed.whatsapp).includes(product.includes),true);
+ if(price>21500)await denied({...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:familyChinaAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:21500},'',409);
+ await denied({...base,key:crypto.randomUUID(),agencyRevision:drinkAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:price});
+}
+
 console.log(`PASS: ${assertions} checks; isolated SQLite service tests, no production data, WhatsApp or payment requests.`);

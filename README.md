@@ -152,3 +152,5 @@ Los wantanes también aparecen con sus fotos en el módulo Comida china, además
 Chili Garlic Q25 visible también en Complementos, con la misma fotografía y producto. Mantiene la sugerencia opcional al finalizar el pedido, con el mismo control de disponibilidad y total.
 
 Últimos precios confirmados Sopa Mein: pollo Q65, lomito Q65, camarón Q70, mixta Q75. Imagen suministrada como sopa mein.png.
+
+Combo Familiar de Comida China: arroz frito 2 lb + chao mein 2 lb + Coca-Cola 1.5 L. Una carne elegida para el combo: pollo/camarón/lomito Q215, mixto Q225 (+Q10). Una tarjeta con foto y selector; solo Plaza Balcones. La foto suministrada muestra wantán, pero el contenido confirmado no lo incluye: se aclara que se pide por separado.
