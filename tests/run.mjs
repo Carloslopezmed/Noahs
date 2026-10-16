@@ -129,4 +129,22 @@ for(const kind of ['mein','ramen'])for(const [meat,basePrice] of [['pollo',7500]
  if(price===8500)await denied({...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:soupAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:7500},'',409);
 }
 
+
+const expressMeatAgency=(await call({action:'catalog'})).agencies.find(a=>a.id==='balcones');
+for(const [id,price] of [['combo-express-chino',9500],['combo-express-chino-lomito',9500],['combo-express-chino-camaron',10000],['combo-express-chino-mixto',10500]]){
+ const product=catalogFor(expressMeatAgency).find(p=>p.id===id);check(product.price,price);check(product.includes,'Arroz frito + wantán + Pepsi de 1.5 litros');
+ const placed=await call({...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:expressMeatAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:price});check(placed.total,price);check(decodeURIComponent(placed.whatsapp).includes(product.name),true);
+ if(price>9500)await denied({...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:expressMeatAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:9500},'',409);
+ await denied({...base,key:crypto.randomUUID(),agencyRevision:drinkAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:price});
+}
+
+
+const favoriteAgency=(await call({action:'catalog'})).agencies.find(a=>a.id==='balcones');
+for(const [id,price] of [['combo-favorito-chino',16500],['combo-favorito-chino-camaron',16500],['combo-favorito-chino-lomito',16500],['combo-favorito-chino-mixto',18000]]){
+ const product=catalogFor(favoriteAgency).find(p=>p.id===id);check(product.price,price);check(product.includes,'1 arroz frito de 2 lb + 1 chao mein de 2 lb + 10 unidades de wantán + Pepsi de 1.5 litros');
+ const placed=await call({...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:favoriteAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:price});check(placed.total,price);check(decodeURIComponent(placed.whatsapp).includes(product.name),true);
+ if(price>16500)await denied({...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:favoriteAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:16500},'',409);
+ await denied({...base,key:crypto.randomUUID(),agencyRevision:drinkAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:price});
+}
+
 console.log(`PASS: ${assertions} checks; isolated SQLite service tests, no production data, WhatsApp or payment requests.`);

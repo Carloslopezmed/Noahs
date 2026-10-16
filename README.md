@@ -138,3 +138,7 @@ Bebidas agrupadas en una sola tarjeta con una imagen y selector obligatorio de s
 Sopas Mein o Ramen en comida china (Plaza Balcones): una tarjeta con foto ilustrativa y selección obligatoria de tipo y carne; Mein: pollo/lomito Q70, camarón Q80, mixta Q85. Ramen: pollo/lomito Q75, mixta/camarón Q85. Incluye 1 sopa y bebida; tipo/volumen de bebida, peso y composición de mixta no especificados. Cada combinación se valida como producto propio en servidor y queda identificada en carrito/WhatsApp.
 
 Sopa Mein actualizada con foto propia al seleccionarla; el selector muestra el precio final de cada carne y no un recargo fijo compartido con Ramen. Conserva la bebida previamente incluida.
+
+Combo Express con selector obligatorio de carne en una tarjeta: pollo/lomito Q95, camarón Q100 (+Q5), mixto Q105 (+Q10); arroz frito, wantán y Pepsi 1.5 L. El id original corresponde a pollo; cada opción tiene precio validado por servidor y nombre específico en pedido/WhatsApp.
+
+Combo Favorito con selector obligatorio de carne: pollo/camarón/lomito Q165, mixto Q180 (+Q15). Una carne elegida para el combo; mantiene arroz frito 2 lb, chao mein 2 lb, 10 wantanes y Pepsi 1.5 L. Precio y nombre de carne validados en servidor.
