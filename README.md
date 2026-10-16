@@ -134,3 +134,5 @@ Arroz frito en comida china (Plaza Balcones): mixto Q85, camarón Q85, pollo Q80
 Presentación de platos chinos: una sola tarjeta e imagen de Chao Mein y una de arroz frito. Cada tarjeta tiene selector obligatorio de carne con precios de agencia y disponibilidad; agregar queda deshabilitado sin selección. El carrito y WhatsApp conservan el producto y precio específicos de la carne elegida.
 
 Bebidas agrupadas en una sola tarjeta con una imagen y selector obligatorio de sabor a Q10. La selección respeta disponibilidad/precios por agencia y conserva el sabor en carrito y WhatsApp.
+
+Sopas Mein o Ramen en comida china (Plaza Balcones): una tarjeta con foto ilustrativa y selección obligatoria de tipo y carne; pollo/lomito Q75, mixta/camarón Q85 (+Q10). Incluye 1 sopa y bebida; tipo/volumen de bebida, peso y composición de mixta no especificados. Cada combinación se valida como producto propio en servidor y queda identificada en carrito/WhatsApp.
