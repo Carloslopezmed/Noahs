@@ -163,4 +163,13 @@ for(const selection of [undefined,{}, {soups:['mein'],meat:'pollo',wantan:'pollo
 await denied({...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:superAgency.revision,mode:'pickup',items:[{id:superProduct.id,quantity:1,variant:'regular',selection:{soups:['mein','ramen'],meat:'pollo',wantan:'camaron'}}],total:18000},'',409);
 await denied({...base,key:crypto.randomUUID(),agencyRevision:drinkAgency.revision,mode:'pickup',items:[{id:superProduct.id,quantity:1,variant:'regular',selection:{soups:['mein','ramen'],meat:'pollo',wantan:'pollo'}}],total:18000});
 
+
+const chapAgency=(await call({action:'catalog'})).agencies.find(a=>a.id==='balcones');
+for(const [meat,price] of [['pollo',8000],['lomito',8000],['camaron',8500],['mixto',9000]]){
+ const id='chapsuey-'+meat,product=catalogFor(chapAgency).find(p=>p.id===id);check(product.price,price);check(product.category,'Comida china');
+ const placed=await call({...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:chapAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:price});check(placed.total,price);check(decodeURIComponent(placed.whatsapp).includes(product.name),true);
+ if(price>8000)await denied({...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:chapAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:8000},'',409);
+ await denied({...base,key:crypto.randomUUID(),agencyRevision:drinkAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:price});
+}
+
 console.log(`PASS: ${assertions} checks; isolated SQLite service tests, no production data, WhatsApp or payment requests.`);
