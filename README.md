@@ -12,6 +12,12 @@ El acceso privado del sitio es una capa adicional: mientras se conserve, los cli
 
 Logotipo oficial facilitado por el propietario, conservado en `assets/brand/`, con versiones optimizadas en `public/brand/`. Se usa el archivo transparente en cabecera, pie de página, operaciones e icono del sitio. Paleta: amarillo ámbar, naranja, marrón y fondos crema. Se conservan las proporciones y el lema original «Sacando fibra».
 
+## Complementos de Plaza Balcones
+
+Porciones de diez unidades: wantán tradicional Q55, camarón Q65 y cangrejo Q55. Se asignan inicialmente a Plaza Balcones, la agencia indicada con comida china. El precio genérico de Q55 se aplica a tradicional/cangrejo, con corrección expresa de camarón Q65. La autorización del catálogo restringe estos productos a esa agencia también en servidor.
+
+El archivo recibido como «WANTAN DE CANGREJO(1).png» era idéntico al de camarón y decía camarón. Se usa la foto genérica de wantán como ilustración para cangrejo hasta recibir la foto correcta.
+
 ## Portada y postres
 
 La Master protagoniza la portada con etiqueta **NUEVO**, fotografía individual y precios actualizados según agencia. Cheesecake Q20 se muestra en **Postres**.
@@ -30,7 +36,7 @@ La fotografía de Plaza Balcones fue facilitada e identificada por el propietari
 
 ## Datos comerciales cargados
 
-- Plaza Balcones / San Cristóbal: 5464 0659, 5.ª avenida 4-39, Mixco. WhatsApp pendiente de verificar. Comida china pendiente de menú.
+- Plaza Balcones / San Cristóbal: 5464 0659, 5.ª avenida 4-39, Mixco. WhatsApp pendiente de verificar. Comida china: wantán en Complementos; resto del menú pendiente.
 - Ciudad Peronia: WhatsApp 50259102450. Dirección pendiente.
 - Ciudad Satélite: 5614 2755. WhatsApp y dirección pendientes.
 - Horario: 09:00–20:00, zona horaria America/Guatemala. No se publican días específicos no confirmados.

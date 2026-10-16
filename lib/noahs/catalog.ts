@@ -1,5 +1,8 @@
-export type Product={id:string;name:string;price:number|null;description:string;image:string;category:string;includes?:string;choices?:number;pending?:string;comboImage?:string;upsell?:boolean};
+export type Product={id:string;name:string;price:number|null;description:string;image:string;category:string;includes?:string;choices?:number;pending?:string;comboImage?:string;upsell?:boolean;agencyIds?:string[]};
 export const products:Product[]=[
+{id:'wantan',name:'Wantán tradicional',price:5500,description:'Diez unidades de wantán para acompañar tu pedido y compartir el antojo.',image:'wantan',category:'Complementos',includes:'Porción de 10 unidades',agencyIds:['balcones']},
+{id:'wantan-camaron',name:'Wantán de camarón',price:6500,description:'Diez unidades de wantán de camarón. Un complemento para disfrutar cada bocado.',image:'wantan-camaron',category:'Complementos',includes:'Porción de 10 unidades',agencyIds:['balcones']},
+{id:'wantan-cangrejo',name:'Wantán de cangrejo',price:5500,description:'Diez unidades de wantán de cangrejo para completar tu pedido. Fotografía ilustrativa de wantán.',image:'wantan',category:'Complementos',includes:'Porción de 10 unidades',agencyIds:['balcones']},
 {id:'cheesecake',name:'Cheesecake',price:2000,description:'Una pausa dulce para cerrar tu pedido con el antojo de un cheesecake.',image:'cheesecake',category:'Postres'},
 {id:'chili',name:'Chili Garlic',price:2500,description:'Un extra de ajo y picante para darle más sabor a tu pedido.',image:'chili',category:'Acompañamientos',upsell:true},
 {id:'smash2',name:'Combo 2 Smash Burger',price:null,description:'Dos Smash Burger para compartir el antojo.',image:'smash2',category:'Para compartir',pending:'Precio por confirmar'},
@@ -35,7 +38,7 @@ export const agencyDefaults:Agency[]=[
 ];
 export const money=(n:number)=>'Q'+(n/100).toLocaleString('es-GT',{minimumFractionDigits:n%100?2:0,maximumFractionDigits:2});
 export const states:Record<string,string>={received:'Recibido',confirmed:'Confirmado por caja',preparing:'En preparación',ready:'Listo',assigned:'Asignado',onway:'En ruta',delivered:'Entregado',cancelled:'Cancelado'};
-export function catalogFor(a:Agency){return products.map(p=>({...p,price:a.overrides[p.id]?.price??p.price,available:p.price!==null&&!p.pending&&a.overrides[p.id]?.available!==false}));}
+export function catalogFor(a:Agency){return products.map(p=>({...p,price:a.overrides[p.id]?.price??p.price,available:p.price!==null&&!p.pending&&a.overrides[p.id]?.available!==false&&(!p.agencyIds||p.agencyIds.includes(a.id))}));}
 export function inHours(a:Agency,now=new Date()){const t=new Intl.DateTimeFormat('en-GB',{timeZone:'America/Guatemala',hour:'2-digit',minute:'2-digit',hour12:false}).format(now);return t>=a.open&&t<a.close;}
 export const roleNames:Record<string,string>={master:'Maestro general',manager:'Encargado',cashier:'Cajero',kitchen:'Cocina',driver:'Motorista'};
 
