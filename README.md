@@ -135,7 +135,7 @@ Presentación de platos chinos: una sola tarjeta e imagen de Chao Mein y una de 
 
 Bebidas agrupadas en una sola tarjeta con una imagen y selector obligatorio de sabor a Q10. La selección respeta disponibilidad/precios por agencia y conserva el sabor en carrito y WhatsApp.
 
-Sopas Mein o Ramen en comida china (Plaza Balcones): una tarjeta con foto ilustrativa y selección obligatoria de tipo y carne; Mein: pollo/lomito Q70, camarón Q80, mixta Q85. Ramen: pollo/lomito Q75, mixta/camarón Q85. Incluye 1 sopa y bebida; tipo/volumen de bebida, peso y composición de mixta no especificados. Cada combinación se valida como producto propio en servidor y queda identificada en carrito/WhatsApp.
+Sopas Mein o Ramen en comida china (Plaza Balcones): una tarjeta con foto ilustrativa y selección obligatoria de tipo y carne; Mein: pollo/lomito Q65, camarón Q70, mixta Q75. Ramen: pollo/lomito Q75, mixta/camarón Q85. Incluye 1 sopa y bebida; tipo/volumen de bebida, peso y composición de mixta no especificados. Cada combinación se valida como producto propio en servidor y queda identificada en carrito/WhatsApp.
 
 Sopa Mein actualizada con foto propia al seleccionarla; el selector muestra el precio final de cada carne y no un recargo fijo compartido con Ramen. Conserva la bebida previamente incluida.
 
@@ -150,3 +150,5 @@ Chapsuey en comida china: una tarjeta con fotografía ilustrativa y selector obl
 Los wantanes también aparecen con sus fotos en el módulo Comida china, además de Complementos: pollo Q55, camarón Q65 y cangrejo Q55 (10 unidades). Se reutilizan los mismos productos, precios, disponibilidad y fotografías del catálogo. Cangrejo conserva foto ilustrativa de wantán.
 
 Chili Garlic Q25 visible también en Complementos, con la misma fotografía y producto. Mantiene la sugerencia opcional al finalizar el pedido, con el mismo control de disponibilidad y total.
+
+Últimos precios confirmados Sopa Mein: pollo Q65, lomito Q65, camarón Q70, mixta Q75. Imagen suministrada como sopa mein.png.
