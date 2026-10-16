@@ -158,3 +158,5 @@ Combo Familiar de Comida China: arroz frito 2 lb + chao mein 2 lb + Coca-Cola 1.
 Actualizada la foto específica de wantán de cangrejo en catálogo, Complementos, Comida china, detalle y carrito. Presentación completa para conservar el título de la imagen. Precio Q55 y porción de 10 unidades.
 
 Horario actualizado para las tres agencias: 11:00–21:00 America/Guatemala. Al iniciar el servicio se actualizan una sola vez los horarios persistidos y se registra el cambio por agencia, conservando dirección, WhatsApp, cobertura y precios. Los cambios administrativos posteriores no se sobrescriben.
+
+Descripción confirmada de Smash Burger: ¼ de libra de carne, queso, pepinillos gourmet, cebolla caramelizada y aderezo especial de la casa.
