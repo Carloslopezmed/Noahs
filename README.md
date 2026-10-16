@@ -12,6 +12,16 @@ El acceso privado del sitio es una capa adicional: mientras se conserve, los cli
 
 Logotipo oficial facilitado por el propietario, conservado en `assets/brand/`, con versiones optimizadas en `public/brand/`. Se usa el archivo transparente en cabecera, pie de página, operaciones e icono del sitio. Paleta: amarillo ámbar, naranja, marrón y fondos crema. Se conservan las proporciones y el lema original «Sacando fibra».
 
+## Complementos · Salchipapas
+
+Salchipapas Q35: papas fritas con salchicha y aderezos, con fotografía facilitada. Se muestran en **Complementos** para las tres agencias según disponibilidad. No se incluyen bebida ni ingredientes adicionales no confirmados.
+
+## Comida china · Plaza Balcones
+
+Combo Favorito Q165: un arroz frito de 2 libras, un chao mein de 2 libras, diez unidades de wantán y Pepsi de 1.5 litros. Se muestra en **Comida china**, con la fotografía facilitada. Es de contenido fijo; no se inventan variedades de proteína ni de relleno para el wantán incluido. Se restringe a Plaza Balcones tanto en catálogo como al registrar el pedido.
+
+Combo Express Q95: arroz frito, wantán y Pepsi de 1.5 litros. Se muestra en **Comida china** de Plaza Balcones. Las cantidades de arroz y wantán no fueron indicadas: no reutilizar las del Combo Favorito ni inventarlas.
+
 ## Complementos de Plaza Balcones
 
 Porciones de diez unidades: wantán de pollo Q55, camarón Q65 y cangrejo Q55. Se asignan inicialmente a Plaza Balcones, la agencia indicada con comida china. El precio genérico de Q55 se aplica a pollo/cangrejo, con corrección expresa de camarón Q65. La autorización del catálogo restringe estos productos a esa agencia también en servidor.
@@ -44,7 +54,7 @@ La fotografía de Plaza Balcones fue facilitada e identificada por el propietari
 
 ## Datos comerciales cargados
 
-- Plaza Balcones / San Cristóbal: 5464 0659, 5.ª avenida 4-39, Mixco. WhatsApp pendiente de verificar. Comida china: wantán en Complementos; resto del menú pendiente.
+- Plaza Balcones / San Cristóbal: 5464 0659, 5.ª avenida 4-39, Mixco. WhatsApp pendiente de verificar. Comida china: Combo Favorito Q165 y wantán en Complementos.
 - Ciudad Peronia: WhatsApp 50259102450. Dirección pendiente.
 - Ciudad Satélite: 5614 2755. WhatsApp y dirección pendientes.
 - Horario: 09:00–20:00, zona horaria America/Guatemala. No se publican días específicos no confirmados.
@@ -111,3 +121,6 @@ Pruebas aisladas con SQLite en memoria, mismo servicio que usa el API. Cubren ac
 El esquema está en `db/schema.ts`, las migraciones en `drizzle/`. No modificar migraciones aplicadas. Semillas comerciales viven fuera de migraciones. No incluir credenciales, bases de datos, cookies ni archivos de ejecución locales en git.
 
 La compilación y las pruebas de servicio se verificaron. La revisión visual y del flujo en navegador queda pendiente cuando haya un navegador de prueba disponible.
+
+### Módulo de comida china
+Sección independiente con enlace propio en la navegación, fuera del listado general de hamburguesas y combos. Incluye Combo Favorito Q165 y Combo Express Q95, únicamente para Plaza Balcones. Comparte carrito, agencia y validación del pedido.

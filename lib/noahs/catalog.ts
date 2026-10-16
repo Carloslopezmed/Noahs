@@ -1,5 +1,8 @@
 export type Product={id:string;name:string;price:number|null;description:string;image:string;category:string;includes?:string;choices?:number;pending?:string;comboImage?:string;upsell?:boolean;agencyIds?:string[]};
 export const products:Product[]=[
+{id:'salchipapas',name:'Salchipapas',price:3500,description:'Papas fritas doraditas con salchicha y aderezos. Un antojo para compartir… o disfrutar vos solo.',image:'salchipapas',category:'Complementos'},
+{id:'combo-express-chino',name:'Combo Express',price:9500,description:'Arroz frito, wantán y una Pepsi para acompañar. Tu antojo de comida china en un solo combo.',image:'combo-express-chino',category:'Comida china',includes:'Arroz frito + wantán + Pepsi de 1.5 litros',agencyIds:['balcones']},
+{id:'combo-favorito-chino',name:'Combo Favorito',price:16500,description:'Compartí el antojo con arroz frito, chao mein, wantán y Pepsi. Todo en un solo combo.',image:'combo-favorito-chino',category:'Comida china',includes:'1 arroz frito de 2 lb + 1 chao mein de 2 lb + 10 unidades de wantán + Pepsi de 1.5 litros',agencyIds:['balcones']},
 {id:'gigante-tortilla',name:'Gigante Tortilla',price:4000,description:'Tu antojo envuelto en tortilla de harina, con papas y gaseosa para completar el combo.',image:'gigante-tortilla',category:'Combos',includes:'Papas y gaseosa'},
 {id:'tortiburguer',name:'Tortiburguer',price:5000,description:'Otra forma de disfrutar tu antojo: un combo en tortilla de harina, acompañado de papas y gaseosa.',image:'tortiburguer',category:'Combos',includes:'Papas y gaseosa'},
 {id:'quesadilla',name:'Quesadilla',price:4500,description:'Una quesadilla para consentir tu antojo. Disfrutala en combo con papas y gaseosa.',image:'quesadilla',category:'Combos',includes:'Papas y gaseosa'},
