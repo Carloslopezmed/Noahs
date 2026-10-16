@@ -57,7 +57,7 @@ La fotografía de Plaza Balcones fue facilitada e identificada por el propietari
 - Plaza Balcones / San Cristóbal: 5464 0659, 5.ª avenida 4-39, Mixco. WhatsApp pendiente de verificar. Comida china: Combo Favorito Q165 y wantán en Complementos.
 - Ciudad Peronia: WhatsApp 50259102450. Dirección pendiente.
 - Ciudad Satélite: 5614 2755. WhatsApp y dirección pendientes.
-- Horario: 09:00–20:00, zona horaria America/Guatemala. No se publican días específicos no confirmados.
+- Horario: 11:00–21:00, zona horaria America/Guatemala. No se publican días específicos no confirmados.
 - Chicago Q30, Doridog Q30, Tradicional Q30 y Americano Q35, con los acompañamientos confirmados.
 - Acompañamientos: Papas Barbiquiu Q35 (barbacoa, ranch, tocino y cilantro), Cheesy Papas Q35 (queso y tocino), Papas Fritas 6 onzas Q10.
 - Doggy Dog pendiente de precio y composición. Quesoburguesa: combo Q40, sola Q30; torta de ¼ de libra, aderezos, pepinillos y pan gourmet. El combo incluye papas y Coca-Cola en lata de 237 ml. Combo 2 Smash Burger Q120, con dos Smash Burger fijas. Los combos Martes (2), pa’3, pa’4 y para6 exigen una selección por hamburguesa y se venden a sus precios confirmados. Cada hamburguesa incluye una porción de papas y una bebida.
@@ -156,3 +156,5 @@ Chili Garlic Q25 visible también en Complementos, con la misma fotografía y pr
 Combo Familiar de Comida China: arroz frito 2 lb + chao mein 2 lb + Coca-Cola 1.5 L. Una carne elegida para el combo: pollo/camarón/lomito Q215, mixto Q225 (+Q10). Una tarjeta con foto y selector; solo Plaza Balcones. La foto suministrada muestra wantán, pero el contenido confirmado no lo incluye: se aclara que se pide por separado.
 
 Actualizada la foto específica de wantán de cangrejo en catálogo, Complementos, Comida china, detalle y carrito. Presentación completa para conservar el título de la imagen. Precio Q55 y porción de 10 unidades.
+
+Horario actualizado para las tres agencias: 11:00–21:00 America/Guatemala. Al iniciar el servicio se actualizan una sola vez los horarios persistidos y se registra el cambio por agencia, conservando dirección, WhatsApp, cobertura y precios. Los cambios administrativos posteriores no se sobrescriben.

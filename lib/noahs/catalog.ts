@@ -76,9 +76,9 @@ export const products:Product[]=[
 ];
 export type Agency={id:string;name:string;short:string;phone:string;whatsapp:string;address:string;open:string;close:string;accepting:boolean;chinese:boolean;zones:{name:string;fee:number}[];overrides:Record<string,{available?:boolean;price?:number}>};
 export const agencyDefaults:Agency[]=[
-{id:'balcones',name:'San Cristóbal · Plaza Balcones',short:'Plaza Balcones',phone:'5464 0659',whatsapp:'',address:'5.ª avenida 4-39, Mixco',open:'09:00',close:'20:00',accepting:true,chinese:true,zones:[],overrides:{}},
-{id:'peronia',name:'Ciudad Peronia',short:'Ciudad Peronia',phone:'5910 2450',whatsapp:'50259102450',address:'Dirección por confirmar',open:'09:00',close:'20:00',accepting:true,chinese:false,zones:[],overrides:{}},
-{id:'satelite',name:'Ciudad Satélite',short:'Ciudad Satélite',phone:'5614 2755',whatsapp:'',address:'Dirección por confirmar',open:'09:00',close:'20:00',accepting:true,chinese:false,zones:[],overrides:{}},
+{id:'balcones',name:'San Cristóbal · Plaza Balcones',short:'Plaza Balcones',phone:'5464 0659',whatsapp:'',address:'5.ª avenida 4-39, Mixco',open:'11:00',close:'21:00',accepting:true,chinese:true,zones:[],overrides:{}},
+{id:'peronia',name:'Ciudad Peronia',short:'Ciudad Peronia',phone:'5910 2450',whatsapp:'50259102450',address:'Dirección por confirmar',open:'11:00',close:'21:00',accepting:true,chinese:false,zones:[],overrides:{}},
+{id:'satelite',name:'Ciudad Satélite',short:'Ciudad Satélite',phone:'5614 2755',whatsapp:'',address:'Dirección por confirmar',open:'11:00',close:'21:00',accepting:true,chinese:false,zones:[],overrides:{}},
 ];
 export const money=(n:number)=>'Q'+(n/100).toLocaleString('es-GT',{minimumFractionDigits:n%100?2:0,maximumFractionDigits:2});
 export const states:Record<string,string>={received:'Recibido',confirmed:'Confirmado por caja',preparing:'En preparación',ready:'Listo',assigned:'Asignado',onway:'En ruta',delivered:'Entregado',cancelled:'Cancelado'};

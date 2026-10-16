@@ -12,7 +12,11 @@ const app=createService(db);let assertions=0;
 async function call(body,cookie='',identity=null){return app.dispatch(new Request('https://noahs.test/api/noahs',{method:'POST',headers:{cookie}}),body,identity);}
 const check=(a,b)=>{assert.deepEqual(a,b);assertions++;};
 async function denied(body,cookie,status){await assert.rejects(()=>call(body,cookie),e=>!status||e.status===status);assertions++;}
-const cat=await call({action:'catalog'});check(cat.agencies.length,3);check(cat.agencies.map(a=>[a.open,a.close]),[['09:00','20:00'],['09:00','20:00'],['09:00','20:00']]);
+
+const legacyHoursDefaults=(await import('../.sites-runtime/tests/catalog.mjs')).agencyDefaults;
+for(const a of legacyHoursDefaults)sqlite.prepare('INSERT INTO agencies(id,data) VALUES (?,?)').run(a.id,JSON.stringify({...a,open:'09:00',close:'20:00'}));
+
+const cat=await call({action:'catalog'});check(cat.agencies.length,3);check(cat.agencies.map(a=>[a.open,a.close]),[['11:00','21:00'],['11:00','21:00'],['11:00','21:00']]);
 await denied({action:'bootstrap',name:'Owner',username:'owner',pin:'12345678'},'',401);
 const owner=await call({action:'bootstrap',name:'Owner fixture',username:'owner',pin:'12345678'},'','test-owner');const master=owner.cookie;
 await denied({action:'bootstrap',name:'Other',username:'other',pin:'12345678'},'',401);
@@ -180,5 +184,11 @@ for(const [meat,price] of [['pollo',21500],['camaron',21500],['lomito',21500],['
  if(price>21500)await denied({...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:familyChinaAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:21500},'',409);
  await denied({...base,key:crypto.randomUUID(),agencyRevision:drinkAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:price});
 }
+
+
+const {inHours}=await import('../.sites-runtime/tests/catalog.mjs');const hoursAgency=legacyHoursDefaults[0];
+check(inHours(hoursAgency,new Date('2026-10-16T16:59:00Z')),false);check(inHours(hoursAgency,new Date('2026-10-16T17:00:00Z')),true);check(inHours(hoursAgency,new Date('2026-10-17T02:59:00Z')),true);check(inHours(hoursAgency,new Date('2026-10-17T03:00:00Z')),false);
+check(sqlite.prepare("SELECT count(*) AS n FROM events WHERE action='hours_updated'").get().n,3);
+const beforeHoursRevision=(await call({action:'catalog'})).agencies.find(a=>a.id==='peronia');await call({action:'catalog'});const afterHoursRevision=(await call({action:'catalog'})).agencies.find(a=>a.id==='peronia');check(afterHoursRevision.open,'00:00');check(afterHoursRevision.close,'23:59');check(afterHoursRevision.revision,beforeHoursRevision.revision);
 
 console.log(`PASS: ${assertions} checks; isolated SQLite service tests, no production data, WhatsApp or payment requests.`);
