@@ -89,8 +89,8 @@ const catalogBalcones=catalogFor(agencyDefaults.find(a=>a.id==='balcones'));chec
 const {comboBurgerOptions}=await import('../.sites-runtime/tests/catalog.mjs');const familyAgency=(await call({action:'catalog'})).agencies.find(a=>a.id==='peronia');const selectable=comboBurgerOptions(familyAgency);check(selectable.length,productsForTests().filter(p=>p.category==='Hamburguesas').length);check(selectable.some(p=>p.id==='queso'),true);for(const burger of selectable){assert.ok(readFileSync('public/menu/'+burger.image+'.webp').length>0);assertions++;}
 function productsForTests(){return baseMenu;}
 for(const [comboId,n,price] of [['combo6',6,33400],['combo3',3,16500],['combo4',4,22500],['martes',2,11000]]){
- const product=catalogFor(familyAgency).find(p=>p.id===comboId);check(product.choices,n);check(product.available,true);check(product.includes,`${n} porciones de papas fritas y ${n} bebidas`);
- const chosen=Array.from({length:n},(_,i)=>i===0?'queso':i%2?'master':'cheesy');const completeOrder=await call({...base,key:crypto.randomUUID(),agencyRevision:familyAgency.revision,mode:'pickup',items:[{id:comboId,quantity:1,variant:'regular',choices:chosen}],total:price});check(completeOrder.total,price);const snapshot=JSON.parse(sqlite.prepare('SELECT items FROM orders WHERE code=?').get(completeOrder.code).items)[0];check(snapshot.choices.length,n);check(snapshot.choices[0],'Quesoburguesa');check(snapshot.includes,`${n} porciones de papas fritas y ${n} bebidas`);check(decodeURIComponent(completeOrder.whatsapp).includes(`${n} bebidas`),true);
+ const product=catalogFor(familyAgency).find(p=>p.id===comboId);check(product.choices,n);check(product.available,true);const expectedIncludes=comboId==='combo4'?'4 hamburguesas a elección + 4 porciones de papas fritas + 1 Coca-Cola de 1.5 litros':`${n} porciones de papas fritas y ${n} bebidas`;check(product.includes,expectedIncludes);
+ const chosen=Array.from({length:n},(_,i)=>i===0?'queso':i%2?'master':'cheesy');const completeOrder=await call({...base,key:crypto.randomUUID(),agencyRevision:familyAgency.revision,mode:'pickup',items:[{id:comboId,quantity:1,variant:'regular',choices:chosen}],total:price});check(completeOrder.total,price);const snapshot=JSON.parse(sqlite.prepare('SELECT items FROM orders WHERE code=?').get(completeOrder.code).items)[0];check(snapshot.choices.length,n);check(snapshot.choices[0],'Quesoburguesa');check(snapshot.includes,expectedIncludes);check(decodeURIComponent(completeOrder.whatsapp).includes(expectedIncludes),true);
  const repeated=await call({...base,key:crypto.randomUUID(),agencyRevision:familyAgency.revision,mode:'pickup',items:[{id:comboId,quantity:1,choices:Array(n).fill('master')}],total:price});check(repeated.total,price);
  for(const invalid of [[],chosen.slice(1),[...chosen,'cheesy'],Array(n).fill('papas'),Array(n).fill('nonexistent')])await denied({...base,key:crypto.randomUUID(),agencyRevision:familyAgency.revision,mode:'pickup',items:[{id:comboId,quantity:1,choices:invalid}],total:price});
 }
@@ -235,5 +235,12 @@ for(const initial of cat.agencies){
  const paused=(await call({action:'catalog'})).agencies.find(a=>a.id===initial.id);check(paused.deliveryEnabled,false);
  await denied({...request,key:crypto.randomUUID(),agencyRevision:paused.revision});
 }
+
+// Peronia correction is scoped to its four-person combo and keeps confirmed burger prices.
+const peroniaCatalog=catalogFor(agencyDefaults.find(a=>a.id==='peronia'));
+check(peroniaCatalog.filter(p=>p.category==='Hamburguesas').map(p=>[p.id,p.price]).sort(),[['bufalo',5900],['cheesy',5900],['clasica',5900],['costena',5900],['crunchy',5900],['master',6000],['queso',4000],['smash',6000],['tejana',6400],['tocino',5900],['tori',5900]].sort());
+check(peroniaCatalog.find(p=>p.id==='combo4').price,22500);
+for(const id of ['balcones','satelite'])check(catalogFor(agencyDefaults.find(a=>a.id===id)).find(p=>p.id==='combo4').includes,'4 porciones de papas fritas y 4 bebidas');
+check(peroniaCatalog.find(p=>p.id==='combo4').description.includes('Coca-Cola de 1.5 litros'),true);
 
 console.log(`PASS: ${assertions} checks; isolated SQLite service tests, no production data, WhatsApp or payment requests.`);

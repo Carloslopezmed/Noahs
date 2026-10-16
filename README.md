@@ -38,7 +38,7 @@ Gigante Tortilla Q40, Tortiburguer Q50 y Quesadilla Q45. Todos incluyen papas y 
 
 ## Combos personalizables
 
-Combo Martes Q110: 2 hamburguesas; pa’3 Q165: 3; pa’4 Q225: 4; para6 Q334: 6. Se puede elegir cualquier hamburguesa del menú individual, incluida Quesoburguesa, dentro del precio fijo del combo. Se respetan las desactivaciones de productos por agencia. Todos incluyen una porción de papas y una bebida por hamburguesa; esta instrucción actualiza la descripción anterior de bebida de 1.5 litros compartida. El nombre «Martes» se conserva sin inventar una restricción de días. Las selecciones se guardan en el pedido, cocina y WhatsApp.
+Combo Martes Q110: 2 hamburguesas; pa’3 Q165: 3; pa’4 Q225: 4; para6 Q334: 6. Se puede elegir cualquier hamburguesa del menú individual, incluida Quesoburguesa, dentro del precio fijo del combo. Se respetan las desactivaciones de productos por agencia. Salvo el combo para 4 de Peronia, incluyen una porción de papas y una bebida por hamburguesa; esta instrucción actualiza la descripción anterior de bebida de 1.5 litros compartida. El nombre «Martes» se conserva sin inventar una restricción de días. Las selecciones se guardan en el pedido, cocina y WhatsApp.
 
 ## Secciones del menú y sugerencia final
 
@@ -60,7 +60,7 @@ La fotografía de Plaza Balcones fue facilitada e identificada por el propietari
 - Horario: 11:00–21:00, zona horaria America/Guatemala. No se publican días específicos no confirmados.
 - Chicago Q30, Doridog Q30, Tradicional Q30 y Americano Q35, con los acompañamientos confirmados.
 - Acompañamientos: Papas Barbiquiu Q35 (barbacoa, ranch, tocino y cilantro), Cheesy Papas Q35 (queso y tocino), Papas Fritas 6 onzas Q10.
-- Doggy Dog pendiente de precio y composición. Quesoburguesa: combo Q40, sola Q30; torta de ¼ de libra, aderezos, pepinillos y pan gourmet. El combo incluye papas y Coca-Cola en lata de 237 ml. Combo 2 Smash Burger Q120, con dos Smash Burger fijas. Los combos Martes (2), pa’3, pa’4 y para6 exigen una selección por hamburguesa y se venden a sus precios confirmados. Cada hamburguesa incluye una porción de papas y una bebida.
+- Doggy Dog pendiente de precio y composición. Quesoburguesa: combo Q40, sola Q30; torta de ¼ de libra, aderezos, pepinillos y pan gourmet. El combo incluye papas y Coca-Cola en lata de 237 ml. Combo 2 Smash Burger Q120, con dos Smash Burger fijas. Los combos Martes (2), pa’3, pa’4 y para6 exigen una selección por hamburguesa y se venden a sus precios confirmados. Cada hamburguesa incluye una porción de papas y una bebida, excepto el combo para 4 de Peronia, que comparte una Coca-Cola de 1.5 litros.
 - Domicilio habilitado con envío gratis en las tres agencias. Sin zonas configuradas, el cliente solicita con dirección y ubicación y la agencia confirma cobertura antes de aceptar. Retiro disponible en agencias con WhatsApp verificado y pedidos habilitados, dentro del horario.
 - Fidelidad desactivada hasta definir si comparte sellos y premios entre agencias.
 
@@ -168,3 +168,5 @@ Ubicación de entrega: al salir del campo dirección se solicita GPS con permiso
 Envío gratis confirmado: Plaza Balcones 50254640659, Peronia 50259102450, Satélite 50256142755. Configuración inicial se aplica una sola vez con evento por agencia, conserva demás datos y respeta ediciones posteriores. El servidor calcula envío Q0; se mantiene la restricción de comida china a Peronia.
 
 El carrito actualiza la configuración al abrirse y cada 30 segundos mientras permanece abierto; también al volver a la pestaña. El botón identifica «A domicilio · Gratis» y la agencia seleccionada. Se mantienen revisión de servidor y solicitud explícita de confirmación por WhatsApp.
+
+Corrección Ciudad Peronia: combo para 4 conserva Q225 y elección de cuatro hamburguesas; incluye cuatro porciones de papas y una Coca-Cola de 1.5 litros. Se aplica en catálogo, carrito y snapshot de nuevos pedidos/WhatsApp; no modifica pedidos históricos ni los combos de otras agencias. Precios confirmados de combos individuales: Q59; Quesoburguesa Q40, Tejana Q64, Smash Q60 y Master Q60 (nueva).
