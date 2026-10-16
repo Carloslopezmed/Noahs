@@ -124,3 +124,7 @@ La compilación y las pruebas de servicio se verificaron. La revisión visual y 
 
 ### Módulo de comida china
 Sección independiente con enlace propio en la navegación, fuera del listado general de hamburguesas y combos. Incluye Combo Favorito Q165 y Combo Express Q95, únicamente para Plaza Balcones. Comparte carrito, agencia y validación del pedido.
+
+Chao Mein en módulo de comida china (Plaza Balcones): camarón Q85, pollo Q80, lomito Q80, mixto Q85. Sin peso, bebida ni composición del mixto confirmados. Foto proporcionada de pollo; ilustrativa para las demás opciones.
+
+Bebidas individuales: Pepsi, Seven Up, Mirinda, Grapete, Coca-Cola, Tiki y Orange en lata, Q10 cada una; sabor identificado por producto. Fotografía de latas ilustrativa, no agrega Sprite al catálogo ni modifica las bebidas incluidas en combos.

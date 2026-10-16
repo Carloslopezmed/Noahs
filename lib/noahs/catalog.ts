@@ -1,5 +1,16 @@
 export type Product={id:string;name:string;price:number|null;description:string;image:string;category:string;includes?:string;choices?:number;pending?:string;comboImage?:string;upsell?:boolean;agencyIds?:string[]};
 export const products:Product[]=[
+{id:'lata-pepsi',name:'Pepsi en lata',price:1000,description:'Tu gaseosa para acompañar el pedido. Fotografía ilustrativa de la presentación en lata.',image:'gaseosas-lata',category:'Bebidas'},
+{id:'lata-seven-up',name:'Seven Up en lata',price:1000,description:'Tu gaseosa para acompañar el pedido. Fotografía ilustrativa de la presentación en lata.',image:'gaseosas-lata',category:'Bebidas'},
+{id:'lata-mirinda',name:'Mirinda en lata',price:1000,description:'Tu gaseosa para acompañar el pedido. Fotografía ilustrativa de la presentación en lata.',image:'gaseosas-lata',category:'Bebidas'},
+{id:'lata-grapete',name:'Grapete en lata',price:1000,description:'Tu gaseosa para acompañar el pedido. Fotografía ilustrativa de la presentación en lata.',image:'gaseosas-lata',category:'Bebidas'},
+{id:'lata-coca-cola',name:'Coca-Cola en lata',price:1000,description:'Tu gaseosa para acompañar el pedido. Fotografía ilustrativa de la presentación en lata.',image:'gaseosas-lata',category:'Bebidas'},
+{id:'lata-tiki',name:'Tiki en lata',price:1000,description:'Tu gaseosa para acompañar el pedido. Fotografía ilustrativa de la presentación en lata.',image:'gaseosas-lata',category:'Bebidas'},
+{id:'lata-orange',name:'Orange en lata',price:1000,description:'Tu gaseosa para acompañar el pedido. Fotografía ilustrativa de la presentación en lata.',image:'gaseosas-lata',category:'Bebidas'},
+{id:'chao-mein-camaron',name:'Chao Mein de camarón',price:8500,description:'Fideos con camarón para disfrutar tu antojo de comida china. Fotografía ilustrativa.',image:'chao-mein',category:'Comida china',agencyIds:['balcones']},
+{id:'chao-mein-pollo',name:'Chao Mein de pollo',price:8000,description:'Fideos con pollo para disfrutar tu antojo de comida china.',image:'chao-mein',category:'Comida china',agencyIds:['balcones']},
+{id:'chao-mein-lomito',name:'Chao Mein de lomito',price:8000,description:'Fideos con lomito para disfrutar tu antojo de comida china. Fotografía ilustrativa.',image:'chao-mein',category:'Comida china',agencyIds:['balcones']},
+{id:'chao-mein-mixto',name:'Chao Mein mixto',price:8500,description:'Todo el antojo del Chao Mein en su versión mixta. Fotografía ilustrativa.',image:'chao-mein',category:'Comida china',agencyIds:['balcones']},
 {id:'salchipapas',name:'Salchipapas',price:3500,description:'Papas fritas doraditas con salchicha y aderezos. Un antojo para compartir… o disfrutar vos solo.',image:'salchipapas',category:'Complementos'},
 {id:'combo-express-chino',name:'Combo Express',price:9500,description:'Arroz frito, wantán y una Pepsi para acompañar. Tu antojo de comida china en un solo combo.',image:'combo-express-chino',category:'Comida china',includes:'Arroz frito + wantán + Pepsi de 1.5 litros',agencyIds:['balcones']},
 {id:'combo-favorito-chino',name:'Combo Favorito',price:16500,description:'Compartí el antojo con arroz frito, chao mein, wantán y Pepsi. Todo en un solo combo.',image:'combo-favorito-chino',category:'Comida china',includes:'1 arroz frito de 2 lb + 1 chao mein de 2 lb + 10 unidades de wantán + Pepsi de 1.5 litros',agencyIds:['balcones']},
