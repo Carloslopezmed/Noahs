@@ -1,11 +1,11 @@
 import {DatabaseSync} from 'node:sqlite';
-import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
+import {readFileSync,readdirSync,mkdirSync,writeFileSync} from 'node:fs';
 import ts from 'typescript';
 import assert from 'node:assert/strict';
 mkdirSync('.sites-runtime/tests',{recursive:true});
 for(const name of ['catalog','service']){const js=ts.transpileModule(readFileSync(`lib/noahs/${name}.ts`,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace("from './catalog'","from './catalog.mjs'");writeFileSync(`.sites-runtime/tests/${name}.mjs`,js);}
 const {createService}=await import('../.sites-runtime/tests/service.mjs');
-const sqlite=new DatabaseSync(':memory:');sqlite.exec(readFileSync('drizzle/0000_known_annihilus.sql','utf8'));
+const sqlite=new DatabaseSync(':memory:');for(const file of readdirSync('drizzle').filter(f=>f.endsWith('.sql')).sort())sqlite.exec(readFileSync('drizzle/'+file,'utf8'));
 function statement(sql){let args=[];const s={bind(...a){args=a;return s;},async first(){return sqlite.prepare(sql).get(...args)||null;},async all(){return {results:sqlite.prepare(sql).all(...args)};},async run(){const r=sqlite.prepare(sql).run(...args);return {meta:{changes:Number(r.changes)}};}};return s;}
 const db={prepare:statement,async batch(stmts){sqlite.exec('BEGIN');try{const r=[];for(const s of stmts)r.push(await s.run());sqlite.exec('COMMIT');return r;}catch(e){sqlite.exec('ROLLBACK');throw e;}}};
 const app=createService(db);let assertions=0;
@@ -30,7 +30,7 @@ await denied({action:'saveUser',username:'bad',name:'bad',role:'driver',agency:'
 await denied({action:'configure',agency:'satelite',data:{}},cookies.manager,403);
 await denied({action:'configure',agency:'peronia',data:{}},cookies.cashier,403);
 let per=(await call({action:'catalog'})).agencies.find(a=>a.id==='peronia');await call({action:'configure',agency:'peronia',revision:per.revision,data:{...per,open:'00:00',close:'23:59',zones:[{name:'Test zone',fee:1200}]}},master);per=(await call({action:'catalog'})).agencies.find(a=>a.id==='peronia');
-const base={action:'place',key:crypto.randomUUID(),agency:'peronia',agencyRevision:per.revision,customer:'Test customer',phone:'55555555',mode:'delivery',zone:'Test zone',address:'Fictional test address',note:'Fixture, never sent',consent:true,items:[{id:'cheesy',quantity:1,choices:[]}],total:7100};
+const base={location:{lat:14.6,lng:-90.6,confirmed:true},action:'place',key:crypto.randomUUID(),agency:'peronia',agencyRevision:per.revision,customer:'Test customer',phone:'55555555',mode:'delivery',zone:'Test zone',address:'Fictional test address',note:'Fixture, never sent',consent:true,items:[{id:'cheesy',quantity:1,choices:[]}],total:7100};
 await denied({...base,key:crypto.randomUUID(),agency:'satelite'},'');
 await denied({...base,key:crypto.randomUUID(),total:1},'',409);
 await denied({...base,key:crypto.randomUUID(),zone:'Other'},'');
@@ -190,5 +190,32 @@ const {inHours}=await import('../.sites-runtime/tests/catalog.mjs');const hoursA
 check(inHours(hoursAgency,new Date('2026-10-16T16:59:00Z')),false);check(inHours(hoursAgency,new Date('2026-10-16T17:00:00Z')),true);check(inHours(hoursAgency,new Date('2026-10-17T02:59:00Z')),true);check(inHours(hoursAgency,new Date('2026-10-17T03:00:00Z')),false);
 check(sqlite.prepare("SELECT count(*) AS n FROM events WHERE action='hours_updated'").get().n,3);
 const beforeHoursRevision=(await call({action:'catalog'})).agencies.find(a=>a.id==='peronia');await call({action:'catalog'});const afterHoursRevision=(await call({action:'catalog'})).agencies.find(a=>a.id==='peronia');check(afterHoursRevision.open,'00:00');check(afterHoursRevision.close,'23:59');check(afterHoursRevision.revision,beforeHoursRevision.revision);
+
+
+const {chineseDeliveryBlocked,isChineseProduct}=await import('../.sites-runtime/tests/catalog.mjs');
+check(chineseDeliveryBlocked(['chapsuey-pollo'],'Ciudad Peronia'),true);check(chineseDeliveryBlocked(['wantan-camaron'],'Otra zona','Casa 2, Ciudad Peronía'),true);check(chineseDeliveryBlocked(['cheesy'],'Ciudad Peronia'),false);check(chineseDeliveryBlocked(['chili'],'Ciudad Peronia'),false);check(chineseDeliveryBlocked(['chapsuey-pollo'],'San Cristóbal'),false);
+for(const agencyId of ['peronia','satelite'])check(catalogFor(legacyHoursDefaults.find(a=>a.id===agencyId)).filter(p=>isChineseProduct(p)&&p.available).length,0);
+const currentBalcones=(await call({action:'catalog'})).agencies.find(a=>a.id==='balcones');await call({action:'configure',agency:'balcones',revision:currentBalcones.revision,data:{...currentBalcones,zones:[{name:'Ciudad Peronia',fee:1200},{name:'Zona permitida fixture',fee:1200}]}},master);const restrictedBalcones=(await call({action:'catalog'})).agencies.find(a=>a.id==='balcones');
+const deliveryFixture={...base,agency:'balcones',agencyRevision:restrictedBalcones.revision,mode:'delivery',zone:'Ciudad Peronia',address:'Casa 5, Ciudad Peronia'};
+for(const id of ['chapsuey-pollo','wantan','wantan-camaron','wantan-cangrejo','sopa-mein-pollo','combo-familiar-chino-pollo']){const product=catalogFor(restrictedBalcones).find(p=>p.id===id);await denied({...deliveryFixture,key:crypto.randomUUID(),items:[{id,quantity:1,variant:'regular'}],total:product.price+1200});}
+await denied({...deliveryFixture,key:crypto.randomUUID(),zone:'Zona permitida fixture',items:[{id:'chapsuey-pollo',quantity:1,variant:'regular'}],total:9200});
+await denied({...deliveryFixture,key:crypto.randomUUID(),items:[{id:'chapsuey-pollo',quantity:1,variant:'regular'},{id:'lata-pepsi',quantity:1,variant:'regular'}],total:10200});
+const allowedLocal=await call({...deliveryFixture,key:crypto.randomUUID(),zone:'Zona permitida fixture',address:'Casa 5 de zona permitida fixture',items:[{id:'chapsuey-pollo',quantity:1,variant:'regular'}],total:9200});check(allowedLocal.total,9200);
+const allowedBurger=await call({...deliveryFixture,key:crypto.randomUUID(),items:[{id:'cheesy',quantity:1,variant:'combo'}],total:7100});check(allowedBurger.total,7100);
+const allowedPickup=await call({...deliveryFixture,key:crypto.randomUUID(),mode:'pickup',items:[{id:'chapsuey-pollo',quantity:1,variant:'regular'}],total:8000});check(allowedPickup.total,8000);
+
+
+const {validDeliveryLocation,deliveryMapUrl,parseLocationLink}=await import('../.sites-runtime/tests/catalog.mjs');
+const confirmedPoint={lat:14.6,lng:-90.6,confirmed:true};check(validDeliveryLocation(confirmedPoint),true);check(deliveryMapUrl(confirmedPoint),'https://www.google.com/maps/search/?api=1&query=14.6,-90.6');
+for(const p of [null,{}, {lat:91,lng:0,confirmed:true},{lat:0,lng:-181,confirmed:true},{lat:Infinity,lng:0,confirmed:true},{lat:'14.6',lng:-90.6,confirmed:true},{lat:14.6,lng:-90.6,confirmed:false}])check(validDeliveryLocation(p),false);
+check(parseLocationLink('14.6, -90.6'),{lat:14.6,lng:-90.6});check(parseLocationLink('https://www.google.com/maps/search/?api=1&query=14.6%2C-90.6'),{lat:14.6,lng:-90.6});check(parseLocationLink('https://maps.google.com/?q=14.6,-90.6'),{lat:14.6,lng:-90.6});check(parseLocationLink('https://www.google.com/maps/place/fixture/data=!3d14.6!4d-90.6'),{lat:14.6,lng:-90.6});
+for(const link of ['https://evil.test/?q=14.6,-90.6','javascript:alert(1)','https://maps.app.goo.gl/example','999,0','https://www.google.com/maps/@14.6,-90.6,15z'])check(parseLocationLink(link),null);
+const geoDelivery={...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:restrictedBalcones.revision,mode:'delivery',zone:'Zona permitida fixture',address:'Casa 5 zona permitida fixture',location:confirmedPoint,items:[{id:'lata-pepsi',quantity:1,variant:'regular'}],total:2200};
+for(const location of [undefined,{lat:14.6,lng:-90.6,confirmed:false},{lat:100,lng:0,confirmed:true}])await denied({...geoDelivery,key:crypto.randomUUID(),location});
+const geoOrder=await call(geoDelivery);check(decodeURIComponent(geoOrder.whatsapp).includes(deliveryMapUrl(confirmedPoint)),true);check(JSON.parse(sqlite.prepare('SELECT location FROM orders WHERE code=?').get(geoOrder.code).location),confirmedPoint);
+const sameGeoOrder=await call({...geoDelivery,location:{lat:1,lng:2,confirmed:true}});check(sameGeoOrder.code,geoOrder.code);check(decodeURIComponent(sameGeoOrder.whatsapp).includes(deliveryMapUrl(confirmedPoint)),true);
+const geoTrack=await call({action:'track',code:geoOrder.code});check(geoTrack.location,undefined);
+const kitchenGeo=await call({action:'dashboard',agency:'peronia'},cookies.kitchen);check(kitchenGeo.orders.every(o=>o.location===null),true);
+const pickupGeo=await call({...geoDelivery,key:crypto.randomUUID(),mode:'pickup',total:1000});check(sqlite.prepare('SELECT location FROM orders WHERE code=?').get(pickupGeo.code).location,null);check(decodeURIComponent(pickupGeo.whatsapp).includes('Ubicación de entrega:'),false);
 
 console.log(`PASS: ${assertions} checks; isolated SQLite service tests, no production data, WhatsApp or payment requests.`);

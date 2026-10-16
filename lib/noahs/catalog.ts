@@ -110,3 +110,19 @@ export function resolveSoupBundle(value:unknown){
  if(typeof s.meat!=='string'||typeof s.wantan!=='string'||!Array.isArray(s.soups)||s.soups.length!==2||s.soups.some(k=>!['mein','ramen'].includes(k))||!Object.hasOwn(soupMeats,s.meat)||!Object.hasOwn(wantanFillings,s.wantan))return null;
  return {extra:s.wantan==='camaron'?1000:0,labels:[...s.soups.map((kind,i)=>`Sopa ${i+1}: ${kind==='mein'?'Mein':'Ramen'} · ${soupMeats[s.meat]}`),`10 wantanes de ${wantanFillings[s.wantan].toLowerCase()}`]};
 }
+
+export function isChineseProduct(p:Product|undefined){return !!p&&(p.category==='Comida china'||['wantan','wantan-camaron','wantan-cangrejo'].includes(p.id));}
+export function chineseDeliveryBlocked(ids:string[],zone='',address=''){
+ const destination=(zone+' '+address).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ return /\bperonia\b/.test(destination)&&ids.some(id=>isChineseProduct(products.find(p=>p.id===id)));
+}
+
+export type DeliveryLocation={lat:number;lng:number;confirmed:true};
+export function validDeliveryLocation(value:unknown):value is DeliveryLocation{if(!value||typeof value!=='object')return false;const p=value as DeliveryLocation;return p.confirmed===true&&typeof p.lat==='number'&&typeof p.lng==='number'&&Number.isFinite(p.lat)&&Number.isFinite(p.lng)&&p.lat>=-90&&p.lat<=90&&p.lng>=-180&&p.lng<=180;}
+export function deliveryMapUrl(value:unknown){return validDeliveryLocation(value)?`https://www.google.com/maps/search/?api=1&query=${value.lat},${value.lng}`:'';}
+export function parseLocationLink(input:string):{lat:number;lng:number}|null{
+ let coords:string|null=null;const raw=input.trim();
+ try{const u=new URL(raw);if(u.protocol!=='https:'||!(u.hostname==='maps.google.com'||u.hostname==='google.com'||u.hostname==='www.google.com'))return null;coords=u.searchParams.get('query')||u.searchParams.get('q');if(!coords){const precise=u.pathname.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/);if(precise)coords=precise[1]+','+precise[2];}}
+ catch{coords=raw;}
+ if(!coords)return null;const match=coords.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);if(!match)return null;const p={lat:Number(match[1]),lng:Number(match[2])};return validDeliveryLocation({...p,confirmed:true})?p:null;
+}
