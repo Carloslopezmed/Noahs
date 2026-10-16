@@ -55,3 +55,15 @@ footer .wordmark img{width:130px;height:95px}
 .store-spotlight .button{margin-top:8px;font-size:11px;padding:14px 18px}
 @media(max-width:800px){.store-spotlight figcaption{padding:28px}.store-spotlight h3{font-size:34px}.store-spotlight>img{height:390px}}
 @media(max-width:600px){.store-spotlight{grid-template-columns:1fr;margin-bottom:20px}.store-spotlight>img{height:320px;object-position:center 56%}.store-spotlight figcaption{padding:27px;gap:13px}.store-spotlight h3{font-size:36px}.store-spotlight .eyebrow{font-size:8px}}
+.product-photo.combo-photo{aspect-ratio:16/9}.combo-photo img{object-fit:contain;background:#f7ecdb}
+.checkout-upsell{display:flex;align-items:center;gap:14px;border:1px solid #e2b865;border-radius:5px;background:linear-gradient(130deg,#fff1cf,#fff9ee);padding:15px}
+.checkout-upsell>img{width:110px;height:110px;object-fit:cover;border-radius:4px;object-position:58% center;flex-shrink:0}
+.checkout-upsell .eyebrow{font-size:7px;letter-spacing:1px;color:#b56819}
+.checkout-upsell h3{font:normal 23px Georgia;letter-spacing:-.5px;margin:8px 0 6px}
+.checkout-upsell p{font-size:10px;color:#916c43;line-height:1.5}
+.checkout-upsell button{display:inline-flex;align-items:center;gap:6px;background:#71330f;color:#fff8ec;font-size:9px;padding:10px;border-radius:3px;margin-top:10px;text-align:left}
+.checkout-upsell small{display:flex;align-items:center;gap:4px;font-size:8px;color:#99672f;margin-top:8px}
+@media(max-width:600px){.checkout-upsell{padding:12px;gap:12px}.checkout-upsell>img{width:90px;height:100px}.checkout-upsell h3{font-size:21px}.checkout-upsell button{font-size:8px;padding:9px}.tabs button{flex:1 1 28%}}
+.hero-new-tag{position:absolute;right:34px;top:30px;z-index:4;display:flex;align-items:center;gap:6px;color:#71330f;background:#ffb62c;border:1px solid #e29a26;box-shadow:0 3px 10px #71330f12;border-radius:3px;padding:10px 15px;font-size:10px;letter-spacing:1.4px;font-weight:700;transform:rotate(4deg)}
+.hero-vertical{top:98px}.hero-caption strong small{display:block;margin:9px 0 0;font-size:11px}.seal strong{font-size:23px}
+@media(max-width:600px){.hero-new-tag{top:24px;right:26px;padding:9px 13px;font-size:9px}.hero-caption strong small{font-size:10px}.hero h1{font-size:80px}.hero-caption{bottom:22px}}

@@ -12,6 +12,16 @@ El acceso privado del sitio es una capa adicional: mientras se conserve, los cli
 
 Logotipo oficial facilitado por el propietario, conservado en `assets/brand/`, con versiones optimizadas en `public/brand/`. Se usa el archivo transparente en cabecera, pie de página, operaciones e icono del sitio. Paleta: amarillo ámbar, naranja, marrón y fondos crema. Se conservan las proporciones y el lema original «Sacando fibra».
 
+## Portada y postres
+
+La Master protagoniza la portada con etiqueta **NUEVO**, fotografía individual y precios actualizados según agencia. Cheesecake Q20 se muestra en **Postres**.
+
+## Secciones del menú y sugerencia final
+
+Las fotos con acompañamientos se muestran en **Combos**, incluidas las nuevas fotos proporcionadas por el propietario. Las fotos individuales están en **Hamburguesas**, con precio Q10 menor. El selector de variante cambia foto y precio, y el carrito conserva ambos. La foto de 2 Smash Burger aparece pendiente de precio.
+
+**Chili Garlic Q25** se ofrece al final del carrito, antes del total y la confirmación. Es opcional, nunca se agrega automáticamente. Respeta disponibilidad y precio por agencia y se registra como un producto normal en pedido y WhatsApp.
+
 ## Hamburguesas solas y en combo
 
 Todos los precios base de hamburguesa corresponden al combo. Cada hamburguesa sola cuesta Q10 menos; se elige antes de agregar. La variante se conserva en carrito, pedido, cocina y WhatsApp y se calcula en el servidor. La regla también aplica a los precios por agencia. No aplica a hot dogs, acompañamientos ni combos para compartir. No se descuenta en productos sin precio. Los acompañamientos solo se describen cuando están confirmados.
