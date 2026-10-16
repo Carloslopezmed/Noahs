@@ -128,3 +128,9 @@ Sección independiente con enlace propio en la navegación, fuera del listado ge
 Chao Mein en módulo de comida china (Plaza Balcones): camarón Q85, pollo Q80, lomito Q80, mixto Q85. Sin peso, bebida ni composición del mixto confirmados. Foto proporcionada de pollo; ilustrativa para las demás opciones.
 
 Bebidas individuales: Pepsi, Seven Up, Mirinda, Grapete, Coca-Cola, Tiki y Orange en lata, Q10 cada una; sabor identificado por producto. Fotografía de latas ilustrativa, no agrega Sprite al catálogo ni modifica las bebidas incluidas en combos.
+
+Arroz frito en comida china (Plaza Balcones): mixto Q85, camarón Q85, pollo Q80 y lomito Q80. Fotografía proporcionada ilustrativa para las cuatro opciones. Sin peso ni acompañamientos confirmados; no hereda cantidades de los combos.
+
+Presentación de platos chinos: una sola tarjeta e imagen de Chao Mein y una de arroz frito. Cada tarjeta tiene selector obligatorio de carne con precios de agencia y disponibilidad; agregar queda deshabilitado sin selección. El carrito y WhatsApp conservan el producto y precio específicos de la carne elegida.
+
+Bebidas agrupadas en una sola tarjeta con una imagen y selector obligatorio de sabor a Q10. La selección respeta disponibilidad/precios por agencia y conserva el sabor en carrito y WhatsApp.

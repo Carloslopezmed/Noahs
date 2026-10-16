@@ -1,5 +1,9 @@
 export type Product={id:string;name:string;price:number|null;description:string;image:string;category:string;includes?:string;choices?:number;pending?:string;comboImage?:string;upsell?:boolean;agencyIds?:string[]};
 export const products:Product[]=[
+{id:'arroz-frito-mixto',name:'Arroz frito mixto',price:8500,description:'El antojo de un arroz frito mixto, listo para disfrutar. Fotografía ilustrativa.',image:'arroz-frito',category:'Comida china',agencyIds:['balcones']},
+{id:'arroz-frito-camaron',name:'Arroz frito de camarón',price:8500,description:'El antojo de un arroz frito con camarón, listo para disfrutar. Fotografía ilustrativa.',image:'arroz-frito',category:'Comida china',agencyIds:['balcones']},
+{id:'arroz-frito-pollo',name:'Arroz frito de pollo',price:8000,description:'El antojo de un arroz frito con pollo, listo para disfrutar. Fotografía ilustrativa.',image:'arroz-frito',category:'Comida china',agencyIds:['balcones']},
+{id:'arroz-frito-lomito',name:'Arroz frito de lomito',price:8000,description:'El antojo de un arroz frito con lomito, listo para disfrutar. Fotografía ilustrativa.',image:'arroz-frito',category:'Comida china',agencyIds:['balcones']},
 {id:'lata-pepsi',name:'Pepsi en lata',price:1000,description:'Tu gaseosa para acompañar el pedido. Fotografía ilustrativa de la presentación en lata.',image:'gaseosas-lata',category:'Bebidas'},
 {id:'lata-seven-up',name:'Seven Up en lata',price:1000,description:'Tu gaseosa para acompañar el pedido. Fotografía ilustrativa de la presentación en lata.',image:'gaseosas-lata',category:'Bebidas'},
 {id:'lata-mirinda',name:'Mirinda en lata',price:1000,description:'Tu gaseosa para acompañar el pedido. Fotografía ilustrativa de la presentación en lata.',image:'gaseosas-lata',category:'Bebidas'},

@@ -112,4 +112,12 @@ for(const flavor of ['pepsi','seven-up','mirinda','grapete','coca-cola','tiki','
  const placed=await call({...base,key:crypto.randomUUID(),agencyRevision:drinkAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:1000});check(placed.total,1000);check(decodeURIComponent(placed.whatsapp).includes(product.name),true);
 }
 
+
+const riceAgency=(await call({action:'catalog'})).agencies.find(a=>a.id==='balcones');
+for(const [id,price] of [['arroz-frito-mixto',8500],['arroz-frito-camaron',8500],['arroz-frito-pollo',8000],['arroz-frito-lomito',8000]]){
+ const product=catalogFor(riceAgency).find(p=>p.id===id);check(product.price,price);check(product.category,'Comida china');
+ const placed=await call({...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:riceAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:price});check(placed.total,price);check(decodeURIComponent(placed.whatsapp).includes(product.name),true);
+ await denied({...base,key:crypto.randomUUID(),agencyRevision:drinkAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:price});
+}
+
 console.log(`PASS: ${assertions} checks; isolated SQLite service tests, no production data, WhatsApp or payment requests.`);
