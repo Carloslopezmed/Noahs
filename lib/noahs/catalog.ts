@@ -1,5 +1,8 @@
 export type Product={id:string;name:string;price:number|null;description:string;image:string;category:string;includes?:string;choices?:number;pending?:string;comboImage?:string;upsell?:boolean;agencyIds?:string[]};
 export const products:Product[]=[
+{id:'gigante-tortilla',name:'Gigante Tortilla',price:4000,description:'Tu antojo envuelto en tortilla de harina, con papas y gaseosa para completar el combo.',image:'gigante-tortilla',category:'Combos',includes:'Papas y gaseosa'},
+{id:'tortiburguer',name:'Tortiburguer',price:5000,description:'Otra forma de disfrutar tu antojo: un combo en tortilla de harina, acompañado de papas y gaseosa.',image:'tortiburguer',category:'Combos',includes:'Papas y gaseosa'},
+{id:'quesadilla',name:'Quesadilla',price:4500,description:'Una quesadilla para consentir tu antojo. Disfrutala en combo con papas y gaseosa.',image:'quesadilla',category:'Combos',includes:'Papas y gaseosa'},
 {id:'wantan',name:'Wantán de pollo',price:5500,description:'Diez unidades de wantán de pollo para acompañar tu pedido y compartir el antojo.',image:'wantan-pollo',category:'Complementos',includes:'Porción de 10 unidades',agencyIds:['balcones']},
 {id:'wantan-camaron',name:'Wantán de camarón',price:6500,description:'Diez unidades de wantán de camarón. Un complemento para disfrutar cada bocado.',image:'wantan-camaron',category:'Complementos',includes:'Porción de 10 unidades',agencyIds:['balcones']},
 {id:'wantan-cangrejo',name:'Wantán de cangrejo',price:5500,description:'Diez unidades de wantán de cangrejo para completar tu pedido. Fotografía ilustrativa de wantán.',image:'wantan',category:'Complementos',includes:'Porción de 10 unidades',agencyIds:['balcones']},

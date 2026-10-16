@@ -22,6 +22,10 @@ El archivo recibido como «WANTAN DE CANGREJO(1).png» era idéntico al de camar
 
 La Master protagoniza la portada con etiqueta **NUEVO**, fotografía individual y precios actualizados según agencia. Cheesecake Q20 se muestra en **Postres**.
 
+## Combos de tortilla y quesadilla
+
+Gigante Tortilla Q40, Tortiburguer Q50 y Quesadilla Q45. Todos incluyen papas y gaseosa y aparecen en **Combos** con las fotografías facilitadas. Son combos de contenido fijo: no se aplica el descuento de Q10 de hamburguesas solas ni el selector de hamburguesas de combos familiares. No se atribuyen rellenos o ingredientes no confirmados.
+
 ## Combos personalizables
 
 Combo Martes Q110: 2 hamburguesas; pa’3 Q165: 3; pa’4 Q225: 4; para6 Q334: 6. Se puede elegir cualquier hamburguesa del menú individual, incluso Quesoburguesa dentro del precio fijo del combo, sin inventar un precio para su venta individual. Se respetan las desactivaciones de productos por agencia. Todos incluyen una porción de papas y una bebida por hamburguesa; esta instrucción actualiza la descripción anterior de bebida de 1.5 litros compartida. El nombre «Martes» se conserva sin inventar una restricción de días. Las selecciones se guardan en el pedido, cocina y WhatsApp.
