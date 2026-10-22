@@ -41,6 +41,7 @@ export default function OperacionesPage() {
   const [username, setUsername] = useState('');
   const [name, setName] = useState('');
   const [pin, setPin] = useState('');
+  const [bootstrapSecret, setBootstrapSecret] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [tab, setTab] = useState('orders');
@@ -83,11 +84,12 @@ export default function OperacionesPage() {
         action: bootstrap ? 'bootstrap' : 'login',
         username: username.trim(),
         pin,
-        ...(bootstrap ? { name: name.trim() } : {}),
+        ...(bootstrap ? { name: name.trim(), bootstrapSecret } : {}),
       });
       setUser(result.user);
       setBootstrap(false);
       setPin('');
+      setBootstrapSecret('');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'No se pudo iniciar sesión.');
     } finally {
@@ -162,7 +164,7 @@ export default function OperacionesPage() {
             <h2>{bootstrap ? 'Crear el primer Maestro' : 'Ingresá con tu usuario'}</h2>
             <p className="ops-muted">{bootstrap ? 'Configurá la cuenta principal que administrará los accesos del equipo.' : 'Tu usuario determina tu rol. Maestro puede acceder a caja, cocina y motoristas.'}</p>
             <form onSubmit={submit} className="ops-form">
-              {bootstrap && <label>Nombre completo<input autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Tu nombre" /></label>}
+              {bootstrap && <><label>Clave de configuración inicial<input type="password" autoComplete="off" value={bootstrapSecret} onChange={(e) => setBootstrapSecret(e.target.value)} required placeholder="La clave guardada en Cloudflare" /></label><label>Nombre completo<input autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Tu nombre" /></label></>}
               <label>Usuario<input autoComplete="username" value={username} onChange={(e) => setUsername(e.target.value)} required placeholder="Ingresá tu usuario" /></label>
               <label>PIN de 8 dígitos<input inputMode="numeric" autoComplete="current-password" type="password" pattern="[0-9]{8}" minLength={8} maxLength={8} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 8))} required placeholder="••••••••" /></label>
               <button className="ops-submit" disabled={busy}>{busy ? 'Ingresando…' : bootstrap ? 'Crear Maestro y entrar' : 'Ingresar'} <ArrowUpRight size={17} /></button>
