@@ -74,6 +74,18 @@ export default function OperacionesPage() {
     return () => { alive = false; window.clearInterval(timer); };
   }, [user]);
 
+  async function changeOrder(order: any, status: string) {
+    setBusy(true); setError('');
+    try {
+      await api({ action: 'transition', id: order.id, revision: order.revision, status });
+      const data = await api({ action: 'dashboard', agency: user?.role === 'master' ? '' : user?.agency || '' });
+      setDashboard(data);
+      setUserNotice('Pedido actualizado correctamente.');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'No se pudo actualizar el pedido.');
+    } finally { setBusy(false); }
+  }
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true);
@@ -194,10 +206,26 @@ export default function OperacionesPage() {
             <div className="ops-detail">
               <div className="ops-detail-heading"><div><p className="ops-kicker">PANEL SELECCIONADO</p><h3>{activeTab?.title || 'Operaciones'}</h3></div><span className="ops-live"><span /> En línea</span></div>
               {error && <p className="ops-error" role="alert">{error}</p>}
-              {activeTab?.id === 'orders' && <div className="ops-metrics">
-                <div><span>Pedidos cargados</span><strong>{dashboard?.orders?.length ?? '—'}</strong></div>
-                <div><span>Pedidos por revisar</span><strong>{dashboard?.orders?.filter((o: any) => ['received', 'confirmed'].includes(o.status)).length ?? '—'}</strong></div>
-                <div><span>Rol activo</span><strong>{roles[user.role] || user.role}</strong></div>
+              {activeTab?.id === 'orders' && <div className="ops-workspace">
+                <div className="ops-metrics">
+                  <div><span>Pedidos cargados</span><strong>{dashboard?.orders?.length ?? '—'}</strong></div>
+                  <div><span>Pedidos por revisar</span><strong>{dashboard?.orders?.filter((o: any) => ['received', 'confirmed'].includes(o.status)).length ?? '—'}</strong></div>
+                  <div><span>Rol activo</span><strong>{roles[user.role] || user.role}</strong></div>
+                </div>
+                <h4 className="ops-user-list-title">Pedidos recientes</h4>
+                <div className="ops-order-list">{(dashboard?.orders || []).slice(0,50).map((o: any) => <article className="ops-order-card" key={o.id}>
+                  <div className="ops-order-top"><strong>Pedido {o.code}</strong><span>{({received:'Nuevo',confirmed:'Confirmado',preparing:'En preparación',ready:'Listo',assigned:'Asignado',onway:'En camino',delivered:'Entregado',cancelled:'Cancelado'} as any)[o.status] || o.status}</span></div>
+                  <p>{o.customer} · {o.mode === 'delivery' ? 'Domicilio' : 'Retiro'} · <b>Q{(o.total/100).toFixed(2)}</b></p>
+                  <p className="ops-muted">{o.items?.map((i: any) => i.quantity + ' × ' + i.name).join(' · ')}</p>
+                  {o.note && <p className="ops-muted">Nota: {o.note}</p>}
+                  <div className="ops-actions">
+                    {o.status === 'received' && ['master','manager','cashier'].includes(user.role) && <button className="ops-action" disabled={busy} onClick={() => changeOrder(o,'confirmed')}>Confirmar pedido</button>}
+                    {o.status === 'confirmed' && ['master','manager','kitchen'].includes(user.role) && <button className="ops-action" disabled={busy} onClick={() => changeOrder(o,'preparing')}>Iniciar preparación</button>}
+                    {o.status === 'preparing' && ['master','manager','kitchen'].includes(user.role) && <button className="ops-action" disabled={busy} onClick={() => changeOrder(o,'ready')}>Marcar listo</button>}
+                    {o.status === 'ready' && o.mode === 'pickup' && ['master','manager','cashier'].includes(user.role) && <button className="ops-action" disabled={busy} onClick={() => changeOrder(o,'delivered')}>Completar retiro</button>}
+                  </div>
+                </article>)}
+                {!dashboard?.orders?.length && <p className="ops-empty">Todavía no hay pedidos registrados.</p>}</div>
               </div>}
               {activeTab?.id === 'kitchen' && <div className="ops-workspace"><p className="ops-muted">Pedidos confirmados y en preparación. Esta pantalla se actualiza automáticamente.</p><div className="ops-order-list">{(dashboard?.orders || []).filter((o: any) => ['confirmed','preparing'].includes(o.status)).map((o: any) => <article className="ops-order-card" key={o.id}><div className="ops-order-top"><strong>Pedido {o.code}</strong><span>{o.status === 'confirmed' ? 'Por preparar' : 'En preparación'}</span></div><p>{o.items?.map((i: any) => i.quantity + ' × ' + i.name).join(' · ')}</p>{o.note && <p className="ops-muted">Nota: {o.note}</p>}<p className="ops-muted">Para cambiar el estado, usá el control autorizado en el panel de pedidos.</p></article>)}{!dashboard?.orders?.some((o: any) => ['confirmed','preparing'].includes(o.status)) && <p className="ops-empty">No hay pedidos pendientes en cocina.</p>}</div></div>}
               {activeTab?.id === 'driver' && <div className="ops-workspace"><p className="ops-muted">Pedidos asignados a tu usuario. La pantalla muestra solo las entregas que corresponden a la sesión.</p><div className="ops-order-list">{(dashboard?.orders || []).filter((o: any) => user.role === 'driver' ? ['assigned','onway'].includes(o.status) : ['ready','assigned','onway'].includes(o.status) && o.mode === 'delivery').map((o: any) => <article className="ops-order-card" key={o.id}><div className="ops-order-top"><strong>Pedido {o.code}</strong><span>{({ready:'Listo para asignar',assigned:'Asignado',onway:'En camino'} as any)[o.status] || o.status}</span></div><p><b>Entrega:</b> {o.address || 'Retiro en agencia'}</p><p><b>Cliente:</b> {o.customer || '—'} · <b>Total:</b> Q{(o.total/100).toFixed(2)}</p>{o.items?.map((i: any, idx: number) => <p className="ops-muted" key={idx}>{i.quantity} × {i.name}</p>)}</article>)}{!dashboard?.orders?.some((o: any) => ['ready','assigned','onway'].includes(o.status) && o.mode === 'delivery') && <p className="ops-empty">No hay entregas pendientes.</p>}</div></div>}
@@ -223,7 +251,7 @@ export default function OperacionesPage() {
         )}
       </div>
       <style jsx global>{`
-        .ops-workspace{margin-top:18px}.ops-order-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:15px}.ops-order-card{border:1px solid #e5e1d8;border-radius:13px;padding:16px;background:#fff}.ops-order-card p{font-size:13px;line-height:1.5;margin:10px 0 0;overflow-wrap:anywhere}.ops-order-top{display:flex;justify-content:space-between;gap:12px;align-items:center}.ops-order-top strong{font-size:14px}.ops-order-top span{font-size:11px;font-weight:700;color:#b13e28;background:#fff0eb;border-radius:20px;padding:6px 9px}.ops-empty{padding:22px;border:1px dashed #d9d5ca;border-radius:12px;color:#777d76;font-size:13px}.ops-page{min-height:100vh;background:#f5f2eb;color:#191d1b;font-family:Arial,Helvetica,sans-serif;padding:0 24px 60px}
+        .ops-workspace{margin-top:18px}.ops-order-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:15px}.ops-order-card{border:1px solid #e5e1d8;border-radius:13px;padding:16px;background:#fff}.ops-order-card p{font-size:13px;line-height:1.5;margin:10px 0 0;overflow-wrap:anywhere}.ops-order-top{display:flex;justify-content:space-between;gap:12px;align-items:center}.ops-order-top strong{font-size:14px}.ops-order-top span{font-size:11px;font-weight:700;color:#b13e28;background:#fff0eb;border-radius:20px;padding:6px 9px}.ops-empty{padding:22px;border:1px dashed #d9d5ca;border-radius:12px;color:#777d76;font-size:13px}.ops-workspace{margin-top:18px}.ops-order-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:15px}.ops-order-card{border:1px solid #e5e1d8;border-radius:13px;padding:16px;background:#fff}.ops-order-card p{font-size:13px;line-height:1.5;margin:10px 0 0;overflow-wrap:anywhere}.ops-order-top{display:flex;justify-content:space-between;gap:12px;align-items:center}.ops-order-top strong{font-size:14px}.ops-order-top span{font-size:11px;font-weight:700;color:#b13e28;background:#fff0eb;border-radius:20px;padding:6px 9px}.ops-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:13px}.ops-action{border:0;border-radius:9px;padding:10px 12px;background:#ed4d2e;color:white;font-size:12px;font-weight:800;cursor:pointer}.ops-action:disabled{opacity:.55}.ops-empty{padding:22px;border:1px dashed #d9d5ca;border-radius:12px;color:#777d76;font-size:13px}..ops-page{min-height:100vh;background:#f5f2eb;color:#191d1b;font-family:Arial,Helvetica,sans-serif;padding:0 24px 60px}
         .ops-topbar{height:82px;max-width:1120px;margin:auto;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #dedbd2}
         .ops-brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:inherit}.ops-brand-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:#ed4d2e;color:#fff;font-size:25px;font-weight:900;font-style:italic}.ops-brand strong{display:block;font-size:19px;letter-spacing:-.7px}.ops-brand small{display:block;font-size:9px;letter-spacing:1.8px;color:#777d76;margin-top:3px}
         .ops-menu-link{display:flex;align-items:center;gap:7px;color:#303831;text-decoration:none;font-weight:700;font-size:14px}
