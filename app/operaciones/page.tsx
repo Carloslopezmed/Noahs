@@ -52,14 +52,21 @@ export default function OperacionesPage() {
 
   useEffect(() => {
     let alive = true;
-    Promise.all([api({ action: 'catalog' }), api({ action: 'me' })])
-      .then(([catalog, session]) => {
+    Promise.allSettled([api({ action: 'catalog' }), api({ action: 'me' })])
+      .then(([catalogResult, sessionResult]) => {
         if (!alive) return;
-        setBootstrap(!!catalog.bootstrap);
-        setAgencies(catalog.agencies || []);
-        if (session.user) setUser(session.user);
+        if (catalogResult.status === 'fulfilled') {
+          setBootstrap(!!catalogResult.value.bootstrap);
+          setAgencies(catalogResult.value.agencies || []);
+        } else {
+          setError(catalogResult.reason instanceof Error ? catalogResult.reason.message : 'No se pudo cargar la configuración.');
+        }
+        // A 401 from "me" is expected when nobody has signed in yet. It must
+        // not prevent the public catalog from deciding whether bootstrap is needed.
+        if (sessionResult.status === 'fulfilled' && sessionResult.value.user) {
+          setUser(sessionResult.value.user);
+        }
       })
-      .catch((e) => { if (alive) setError(e.message); })
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
   }, []);
