@@ -48,6 +48,8 @@ export default function OperacionesPage() {
   const [agencies, setAgencies] = useState<any[]>([]);
   const [newUser, setNewUser] = useState({ name: '', username: '', role: 'cashier', agency: 'peronia', pin: '' });
   const [userNotice, setUserNotice] = useState('');
+  const [soundEnabled, setSoundEnabled] = useState(false);
+  const pendingNewOrders = (dashboard?.orders || []).filter((o: any) => o.status === 'received');
 
   useEffect(() => {
     let alive = true;
@@ -73,6 +75,54 @@ export default function OperacionesPage() {
     const timer = window.setInterval(load, 15000);
     return () => { alive = false; window.clearInterval(timer); };
   }, [user]);
+
+  useEffect(() => {
+    if (!soundEnabled || pendingNewOrders.length === 0) return;
+    let active = true;
+    const playTone = () => {
+      if (!active) return;
+      try {
+        const AudioContextClass = window.AudioContext;
+        if (!AudioContextClass) { setSoundEnabled(false); return; }
+        const context = new AudioContextClass();
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.value = 880;
+        gain.gain.value = 0.07;
+        oscillator.connect(gain);
+        gain.connect(context.destination);
+        oscillator.start();
+        oscillator.stop(context.currentTime + 0.16);
+        oscillator.onended = () => { void context.close(); };
+      } catch { setSoundEnabled(false); }
+    };
+    playTone();
+    const timer = window.setInterval(playTone, 5000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [soundEnabled, pendingNewOrders.length]);
+
+  async function collectOrder(order: any, method: 'cash' | 'card') {
+    setBusy(true); setError('');
+    try {
+      await api({ action: 'collect', id: order.id, revision: order.revision, method });
+      const data = await api({ action: 'dashboard', agency: user?.role === 'master' ? '' : user?.agency || '' });
+      setDashboard(data); setUserNotice(method === 'cash' ? 'Cobro en efectivo registrado.' : 'Cobro con tarjeta registrado.');
+    } catch (e) { setError(e instanceof Error ? e.message : 'No se pudo registrar el cobro.'); }
+    finally { setBusy(false); }
+  }
+
+  async function changeOrder(order: any, status: string) {
+    setBusy(true); setError('');
+    try {
+      await api({ action: 'transition', id: order.id, revision: order.revision, status });
+      const data = await api({ action: 'dashboard', agency: user?.role === 'master' ? '' : user?.agency || '' });
+      setDashboard(data);
+      setUserNotice('Pedido actualizado correctamente.');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'No se pudo actualizar el pedido.');
+    } finally { setBusy(false); }
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -194,14 +244,34 @@ export default function OperacionesPage() {
             <div className="ops-detail">
               <div className="ops-detail-heading"><div><p className="ops-kicker">PANEL SELECCIONADO</p><h3>{activeTab?.title || 'Operaciones'}</h3></div><span className="ops-live"><span /> En línea</span></div>
               {error && <p className="ops-error" role="alert">{error}</p>}
-              {activeTab?.id === 'orders' && <div className="ops-metrics">
-                <div><span>Pedidos cargados</span><strong>{dashboard?.orders?.length ?? '—'}</strong></div>
-                <div><span>Pedidos por revisar</span><strong>{dashboard?.orders?.filter((o: any) => ['received', 'confirmed'].includes(o.status)).length ?? '—'}</strong></div>
-                <div><span>Rol activo</span><strong>{roles[user.role] || user.role}</strong></div>
+              {activeTab?.id === 'orders' && <div className="ops-workspace">
+                <div className="ops-alert-bar"><div><strong>{pendingNewOrders.length ? 'Hay ' + pendingNewOrders.length + ' pedido(s) nuevo(s) por revisar' : 'No hay pedidos nuevos sin atender'}</strong><p className="ops-muted">La alarma se repite mientras haya pedidos nuevos. Activala con un clic en este dispositivo.</p></div><button className="ops-action" onClick={() => setSoundEnabled(!soundEnabled)}>{soundEnabled ? 'Silenciar alarma' : 'Activar alarma sonora'}</button></div>
+                <div className="ops-metrics">
+                  <div><span>Pedidos cargados</span><strong>{dashboard?.orders?.length ?? '—'}</strong></div>
+                  <div><span>Pedidos por revisar</span><strong>{dashboard?.orders?.filter((o: any) => ['received', 'confirmed'].includes(o.status)).length ?? '—'}</strong></div>
+                  <div><span>Rol activo</span><strong>{roles[user.role] || user.role}</strong></div>
+                </div>
+                <h4 className="ops-user-list-title">Pedidos recientes</h4>
+                <div className="ops-order-list">{(dashboard?.orders || []).slice(0,50).map((o: any) => <article className="ops-order-card" key={o.id}>
+                  <div className="ops-order-top"><strong>Pedido {o.code}</strong><span>{({received:'Nuevo',confirmed:'Confirmado',preparing:'En preparación',ready:'Listo',assigned:'Asignado',onway:'En camino',delivered:'Entregado',cancelled:'Cancelado'} as any)[o.status] || o.status}</span></div>
+                  <p>{o.customer} · {o.mode === 'delivery' ? 'Domicilio' : 'Retiro'} · <b>Q{(o.total/100).toFixed(2)}</b></p>
+                  <p className="ops-muted">{o.items?.map((i: any) => i.quantity + ' × ' + i.name).join(' · ')}</p>
+                  {o.note && <p className="ops-muted">Nota: {o.note}</p>}
+                  <div className="ops-actions">
+                    {o.status === 'received' && ['master','manager','cashier'].includes(user.role) && <button className="ops-action" disabled={busy} onClick={() => changeOrder(o,'confirmed')}>Confirmar pedido</button>}
+                    {o.status === 'confirmed' && ['master','manager','kitchen'].includes(user.role) && <button className="ops-action" disabled={busy} onClick={() => changeOrder(o,'preparing')}>Iniciar preparación</button>}
+                    {o.status === 'preparing' && ['master','manager','kitchen'].includes(user.role) && <button className="ops-action" disabled={busy} onClick={() => changeOrder(o,'ready')}>Marcar listo</button>}
+                    {o.status === 'ready' && o.mode === 'pickup' && ['master','manager','cashier'].includes(user.role) && <button className="ops-action" disabled={busy} onClick={() => changeOrder(o,'delivered')}>Completar retiro</button>}
+                  </div>
+                </article>)}
+                {!dashboard?.orders?.length && <p className="ops-empty">Todavía no hay pedidos registrados.</p>}</div>
               </div>}
-              {activeTab?.id === 'kitchen' && <p className="ops-muted">Sesión de cocina habilitada. Los pedidos y cambios de estado se administran con el panel de operaciones del sistema.</p>}
-              {activeTab?.id === 'driver' && <p className="ops-muted">Acceso de motoristas habilitado para la cuenta asignada. Las entregas se actualizan desde el panel operativo.</p>}
-              {activeTab?.id === 'settlements' && <p className="ops-muted">Panel de liquidación disponible para roles autorizados. Los movimientos dependen de los registros del sistema.</p>}
+              {activeTab?.id === 'kitchen' && <div className="ops-workspace kitchen-screen">
+                <div className="kitchen-board-head"><div><p className="ops-kicker">NOAH’S · KITCHEN DISPLAY</p><h4>Tablero de preparación</h4><p>Los pedidos nuevos aparecen en “Por preparar”. Avanzá cada pedido al terminar.</p></div><span className="kitchen-live">● ACTUALIZACIÓN CADA 15 S</span></div>
+                <div className="kitchen-lanes">{([{status:'confirmed',title:'POR PREPARAR',subtitle:'Pedidos confirmados'},{status:'preparing',title:'EN PREPARACIÓN',subtitle:'Pedidos en proceso'}] as const).map((lane) => { const list=(dashboard?.orders||[]).filter((o:any)=>o.status===lane.status); return <section className={'kitchen-lane '+lane.status} key={lane.status}><header className="kitchen-lane-head"><div><h5>{lane.title}</h5><p>{lane.subtitle}</p></div><strong>{list.length}</strong></header><div className="kitchen-ticket-list">{list.map((o:any)=><article className="kitchen-ticket" key={o.id}><div className="kitchen-ticket-top"><span>PEDIDO</span><strong>#{o.code}</strong></div><div className="kitchen-ticket-items">{(o.items||[]).map((i:any,idx:number)=><div className="kitchen-ticket-item" key={idx}><strong>{i.quantity}×</strong><span>{i.name}</span></div>)}</div>{o.note&&<div className="kitchen-note"><b>NOTA ESPECIAL</b><p>{o.note}</p></div>}<button className={'kitchen-ticket-button '+(o.status==='confirmed'?'start':'ready')} disabled={busy} onClick={()=>changeOrder(o,o.status==='confirmed'?'preparing':'ready')}>{o.status==='confirmed'?'▶ INICIAR PREPARACIÓN':'✓ MARCAR COMO LISTO'}</button></article>)}{!list.length&&<div className="kitchen-empty">Sin pedidos en esta etapa</div>}</div></section>; })}</div>
+              </div>}
+              {activeTab?.id === 'driver' && <div className="ops-workspace"><p className="ops-muted">Pedidos asignados a tu usuario. La pantalla muestra solo las entregas que corresponden a la sesión.</p><div className="ops-order-list">{(dashboard?.orders || []).filter((o: any) => user.role === 'driver' ? ['assigned','onway'].includes(o.status) : ['ready','assigned','onway'].includes(o.status) && o.mode === 'delivery').map((o: any) => <article className="ops-order-card" key={o.id}><div className="ops-order-top"><strong>Pedido {o.code}</strong><span>{({ready:'Listo para asignar',assigned:'Asignado',onway:'En camino'} as any)[o.status] || o.status}</span></div><p><b>Entrega:</b> {o.address || 'Retiro en agencia'}</p><p><b>Cliente:</b> {o.customer || '—'} · <b>Total:</b> Q{(o.total/100).toFixed(2)}</p>{o.items?.map((i: any, idx: number) => <p className="ops-muted" key={idx}>{i.quantity} × {i.name}</p>)}<div className="ops-actions">{o.status === 'ready' && ['master','manager'].includes(user.role) && <label className="ops-assign">Asignar motorista<select defaultValue="" onChange={(e) => { if(e.target.value) void api({action:'transition',id:o.id,revision:o.revision,status:'assigned',driver:e.target.value}).then(async()=>{setDashboard(await api({action:'dashboard',agency:user?.role==='master'?'':user?.agency||''}));}).catch((err)=>setError(err instanceof Error?err.message:'No se pudo asignar.')); }}><option value="" disabled>Seleccionar…</option>{(dashboard?.staff || []).filter((st: any) => st.role === 'driver' && st.active && !st.deleted && st.agency === o.agency).map((st: any) => <option key={st.id} value={st.id}>{st.name}</option>)}</select></label>}{o.status === 'assigned' && ['master','manager'].includes(user.role) && <button className="ops-action secondary" disabled={busy} onClick={() => changeOrder(o,'ready')}>Liberar asignación</button>}{o.status === 'assigned' && <button className="ops-action" disabled={busy} onClick={() => changeOrder(o,'onway')}>Confirmar salida</button>}{o.status === 'onway' && <><button className="ops-action" disabled={busy} onClick={() => collectOrder(o,'cash')}>Cobrar efectivo</button><button className="ops-action secondary" disabled={busy} onClick={() => collectOrder(o,'card')}>Cobrar tarjeta</button>{o.paid_method && <button className="ops-action" disabled={busy} onClick={() => changeOrder(o,'delivered')}>Confirmar entrega</button>}</>}</div></article>)}{!dashboard?.orders?.some((o: any) => ['ready','assigned','onway'].includes(o.status) && o.mode === 'delivery') && <p className="ops-empty">No hay entregas pendientes.</p>}</div></div>}
+              {activeTab?.id === 'settlements' && <div className="ops-workspace"><p className="ops-muted">Efectivo y tarjeta se muestran por separado. Tener un pedido asignado no significa que el efectivo ya fue entregado a caja.</p><div className="ops-metrics"><div><span>Efectivo recibido directamente en caja</span><strong>Q{((dashboard?.finance?.cashierCash || 0)/100).toFixed(2)}</strong></div><div><span>Efectivo cobrado por motoristas pendiente de entrega</span><strong>Q{((dashboard?.finance?.pending || 0)/100).toFixed(2)}</strong></div><div><span>Pagos con tarjeta (separados)</span><strong>Q{((dashboard?.finance?.card || 0)/100).toFixed(2)}</strong></div></div><h4 className="ops-user-list-title">Saldos por motorista</h4><div className="ops-order-list">{(dashboard?.finance?.drivers || []).map((d: any) => <article className="ops-order-card" key={d.id}><div className="ops-order-top"><strong>{d.name}</strong><span>{d.deleted ? 'Inactivo' : 'Activo'}</span></div><p>Pedidos asignados pendientes: Q{(d.assigned/100).toFixed(2)} · Por cobrar: Q{(d.uncollected/100).toFixed(2)}</p><p>Efectivo cobrado por motorista: Q{(d.cash/100).toFixed(2)} · Tarjeta cobrada: Q{(d.card/100).toFixed(2)}</p><p>Efectivo entregado a caja: Q{(d.remitted/100).toFixed(2)} · Saldo de efectivo pendiente: <b>Q{(d.pending/100).toFixed(2)}</b></p></article>)}</div><h4 className="ops-user-list-title">Registrar entrega de efectivo</h4><form className="ops-form ops-user-form" onSubmit={async (e) => { e.preventDefault(); const form=e.currentTarget; const fd=new FormData(form); const amount=Math.round(Number(fd.get('amount'))*100); const [agencyId,driverId]=String(fd.get('driver')).split('|'); setBusy(true); setError(''); try { await api({action:'remit',agency:agencyId,driver:driverId,amount,key:crypto.randomUUID()}); setUserNotice('Entrega de efectivo registrada.'); form.reset(); setDashboard(await api({action:'dashboard',agency:user?.role==='master'?'':user?.agency||''})); } catch(err) { setError(err instanceof Error ? err.message : 'No se pudo registrar la entrega.'); } finally { setBusy(false); } }}><label>Motorista<select name="driver" required>{(dashboard?.finance?.drivers || []).filter((d: any) => d.pending > 0).map((d: any) => <option key={d.id} value={d.agency + '|' + d.id}>{(agencies.find((a: any) => a.id === d.agency)?.name || d.agency) + ' · ' + d.name} · Q{(d.pending/100).toFixed(2)} pendiente</option>)}</select></label><label>Monto recibido (Q)<input name="amount" type="number" min="0.01" step="0.01" required /></label><button className="ops-submit" disabled={busy || !(dashboard?.finance?.drivers || []).some((d: any) => d.pending > 0)}>Confirmar entrega de efectivo</button></form><h4 className="ops-user-list-title">Historial de entregas de efectivo</h4><div className="ops-order-list">{(dashboard?.remittances || []).map((r: any) => <article className="ops-order-card" key={r.id}><div className="ops-order-top"><strong>{r.driver_name}</strong><span>{new Date(r.created).toLocaleString('es-GT')}</span></div><p>Q{(r.amount/100).toFixed(2)} recibidos por {r.actor_name}</p></article>)}</div></div>}
               {activeTab?.id === 'users' && <div className="ops-user-admin">
                 <p className="ops-muted">Creá accesos para el equipo. Cada cuenta usa un usuario y un PIN numérico de 8 dígitos.</p>
                 <form className="ops-form ops-user-form" onSubmit={createStaff}>
@@ -223,7 +293,37 @@ export default function OperacionesPage() {
         )}
       </div>
       <style jsx global>{`
-        .ops-page{min-height:100vh;background:#f5f2eb;color:#191d1b;font-family:Arial,Helvetica,sans-serif;padding:0 24px 60px}
+
+        .kitchen-screen{background:#f2f4f7;border:1px solid #dfe3e8;border-radius:16px;padding:20px}
+        .kitchen-board-head{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:4px 2px 20px}
+        .kitchen-board-head h4{font-size:26px;letter-spacing:-.7px;margin:0;color:#17202b}
+        .kitchen-board-head>div>p:last-child{margin:8px 0 0;color:#647184;font-size:13px}
+        .kitchen-live{background:#e4f7eb;color:#187346;border-radius:8px;padding:10px 12px;font-size:10px;font-weight:900;white-space:nowrap}
+        .kitchen-lanes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+        .kitchen-lane{background:#e7ebf0;border-radius:13px;overflow:hidden;min-width:0}
+        .kitchen-lane-head{display:flex;justify-content:space-between;align-items:center;padding:15px 16px;background:#252e3b;color:white}
+        .kitchen-lane.preparing .kitchen-lane-head{background:#a43c22}
+        .kitchen-lane-head h5{font-size:14px;letter-spacing:.8px;margin:0;font-weight:900}
+        .kitchen-lane-head p{font-size:11px;color:#d8dfe8;margin:5px 0 0}
+        .kitchen-lane-head>strong{display:grid;place-items:center;min-width:34px;height:34px;padding:0 7px;border-radius:9px;background:#fff;color:#202936;font-size:18px}
+        .kitchen-ticket-list{display:grid;gap:12px;padding:12px}
+        .kitchen-ticket{background:white;border:1px solid #dce1e8;border-radius:10px;padding:15px;box-shadow:0 2px 5px #1924350b}
+        .kitchen-ticket-top{display:flex;align-items:center;justify-content:space-between;border-bottom:1px dashed #dce1e8;padding-bottom:11px;margin-bottom:8px}
+        .kitchen-ticket-top span{font-size:10px;font-weight:900;letter-spacing:1.3px;color:#7b8492}
+        .kitchen-ticket-top strong{font-size:25px;letter-spacing:-.7px;color:#1c2633}
+        .kitchen-ticket-items{display:grid}
+        .kitchen-ticket-item{display:grid;grid-template-columns:42px minmax(0,1fr);gap:8px;padding:11px 0;border-bottom:1px solid #edf0f3;font-size:16px;line-height:1.35;color:#202936}
+        .kitchen-ticket-item strong{font-size:17px;color:#b43f25}
+        .kitchen-note{background:#fff2d5;border-left:4px solid #e3a329;border-radius:5px;padding:10px 12px;margin-top:12px}
+        .kitchen-note b{font-size:10px;letter-spacing:.8px;color:#83540a}
+        .kitchen-note p{font-size:13px;font-weight:700;color:#523b12;margin:5px 0 0}
+        .kitchen-ticket-button{width:100%;border:0;border-radius:8px;padding:14px 10px;margin-top:14px;color:white;font-size:12px;font-weight:900;letter-spacing:.35px;cursor:pointer}
+        .kitchen-ticket-button.start{background:#273444}.kitchen-ticket-button.ready{background:#198754}
+        .kitchen-ticket-button:disabled{opacity:.55;cursor:wait}
+        .kitchen-empty{padding:24px 12px;text-align:center;color:#687485;font-size:12px;background:#f7f8fa;border:1px dashed #c8d0db;border-radius:8px}
+        @media(max-width:700px){.kitchen-screen{padding:12px}.kitchen-board-head{align-items:flex-start;flex-direction:column}.kitchen-board-head h4{font-size:22px}.kitchen-lanes{grid-template-columns:1fr}.kitchen-ticket-item{font-size:15px}}
+
+        .ops-alert-bar{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:15px;border:1px solid #f0c9bc;background:#fff5f1;border-radius:13px;margin-bottom:16px}.ops-alert-bar p{margin:5px 0 0}.ops-assign{display:grid;gap:8px;font-size:12px;font-weight:700}.ops-assign select{padding:10px;border:1px solid #dedfd9;border-radius:9px;background:#fcfcfa}.ops-workspace{margin-top:18px}.ops-order-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:15px}.ops-order-card{border:1px solid #e5e1d8;border-radius:13px;padding:16px;background:#fff}.ops-order-card p{font-size:13px;line-height:1.5;margin:10px 0 0;overflow-wrap:anywhere}.ops-order-top{display:flex;justify-content:space-between;gap:12px;align-items:center}.ops-order-top strong{font-size:14px}.ops-order-top span{font-size:11px;font-weight:700;color:#b13e28;background:#fff0eb;border-radius:20px;padding:6px 9px}.ops-empty{padding:22px;border:1px dashed #d9d5ca;border-radius:12px;color:#777d76;font-size:13px}.ops-workspace{margin-top:18px}.ops-order-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:15px}.ops-order-card{border:1px solid #e5e1d8;border-radius:13px;padding:16px;background:#fff}.ops-order-card p{font-size:13px;line-height:1.5;margin:10px 0 0;overflow-wrap:anywhere}.ops-order-top{display:flex;justify-content:space-between;gap:12px;align-items:center}.ops-order-top strong{font-size:14px}.ops-order-top span{font-size:11px;font-weight:700;color:#b13e28;background:#fff0eb;border-radius:20px;padding:6px 9px}.ops-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:13px}.ops-action{border:0;border-radius:9px;padding:10px 12px;background:#ed4d2e;color:white;font-size:12px;font-weight:800;cursor:pointer}.ops-action:disabled{opacity:.55}.ops-empty{padding:22px;border:1px dashed #d9d5ca;border-radius:12px;color:#777d76;font-size:13px}..ops-page{min-height:100vh;background:#f5f2eb;color:#191d1b;font-family:Arial,Helvetica,sans-serif;padding:0 24px 60px}
         .ops-topbar{height:82px;max-width:1120px;margin:auto;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #dedbd2}
         .ops-brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:inherit}.ops-brand-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:#ed4d2e;color:#fff;font-size:25px;font-weight:900;font-style:italic}.ops-brand strong{display:block;font-size:19px;letter-spacing:-.7px}.ops-brand small{display:block;font-size:9px;letter-spacing:1.8px;color:#777d76;margin-top:3px}
         .ops-menu-link{display:flex;align-items:center;gap:7px;color:#303831;text-decoration:none;font-weight:700;font-size:14px}
@@ -231,7 +331,7 @@ export default function OperacionesPage() {
         .ops-heading{display:flex;align-items:center;justify-content:space-between;margin:20px 0 30px}.ops-kicker{font-size:10px;font-weight:800;letter-spacing:1.5px;color:#ed4d2e;margin:0 0 10px}.ops-heading h1{font-size:clamp(34px,5vw,54px);line-height:1.04;letter-spacing:-2px;margin:0;font-weight:850}.ops-heading h1 span{color:#ed4d2e}.ops-lead{font-size:17px;color:#69716a;margin:13px 0 0}.ops-emblem{width:78px;height:78px;display:grid;place-items:center;background:#e9e4d8;border-radius:24px;color:#ed4d2e}
         .ops-login-card{max-width:560px;margin:0 auto;background:#fff;border:1px solid #e7e3da;border-radius:22px;padding:30px;box-shadow:0 14px 40px #272b2110}.ops-card-icon{display:grid;place-items:center;width:44px;height:44px;border-radius:13px;background:#fff0eb;color:#ed4d2e}.ops-login-card h2{font-size:24px;letter-spacing:-.7px;margin:18px 0 8px}.ops-muted{font-size:14px;color:#747a73;line-height:1.6}.ops-form{display:grid;gap:17px;margin-top:24px}.ops-form label{display:grid;gap:8px;font-size:12px;font-weight:800;color:#343b35}.ops-form input{width:100%;box-sizing:border-box;padding:14px 15px;border:1px solid #dedfd9;border-radius:11px;background:#fcfcfa;color:#191d1b;font:inherit;font-size:15px;outline:none}.ops-form input:focus{border-color:#ed4d2e;box-shadow:0 0 0 3px #ed4d2e1a}.ops-submit{display:flex;justify-content:center;align-items:center;gap:10px;border:0;border-radius:11px;padding:15px;background:#ed4d2e;color:white;font-weight:800;font-size:14px;cursor:pointer;margin-top:4px}.ops-submit:disabled,.ops-logout:disabled{opacity:.6;cursor:wait}.ops-error{padding:12px 14px;border-radius:10px;background:#fff0ed;color:#b02e1a;font-size:13px}.ops-footnote{display:flex;align-items:center;gap:7px;color:#83877f;font-size:11px;line-height:1.5;margin:17px 0 0}.ops-dashboard{display:grid;gap:24px}.ops-welcome{position:relative;background:#1f2924;color:white;border-radius:20px;padding:25px 28px}.ops-welcome>div:first-child{font-size:10px;letter-spacing:1.3px;color:#c4e4c8;display:flex;align-items:center;gap:8px}.ops-status-dot,.ops-live span{width:7px;height:7px;border-radius:50%;background:#55bb78;display:inline-block}.ops-welcome h2{font-size:28px;letter-spacing:-.8px;margin:14px 0 4px}.ops-welcome p{font-size:13px;color:#d2d8d1;margin:0}.ops-logout{position:absolute;right:22px;top:22px;display:flex;align-items:center;gap:7px;background:#ffffff14;color:white;border:1px solid #ffffff26;padding:10px 12px;border-radius:9px;cursor:pointer;font-size:12px}.ops-section-head,.ops-detail-heading{display:flex;justify-content:space-between;align-items:end;gap:14px}.ops-section-head h2,.ops-detail-heading h3{font-size:23px;letter-spacing:-.7px;margin:0}.ops-live{display:flex;align-items:center;gap:7px;font-size:11px;color:#68746a;white-space:nowrap}.ops-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.ops-section-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-align:left;padding:22px;border:1px solid #e1ddd4;border-radius:16px;background:white;color:#202620;cursor:pointer;min-height:175px;transition:border-color .15s,transform .15s}.ops-section-card:hover{border-color:#ed4d2e;transform:translateY(-2px)}.ops-section-card.selected{border-color:#ed4d2e;box-shadow:0 0 0 1px #ed4d2e inset}.ops-section-icon{display:grid;place-items:center;width:43px;height:43px;border-radius:12px;background:#f7eee7;color:#ed4d2e}.ops-section-title{font-size:16px;font-weight:800}.ops-section-desc{font-size:12px;color:#7b8079;line-height:1.5;max-width:300px;padding-right:12px}.ops-card-arrow{position:absolute;right:18px;top:20px;color:#8b9189}.ops-detail{background:white;border:1px solid #e3dfd6;border-radius:18px;padding:24px}.ops-detail-heading{align-items:center}.ops-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px}.ops-metrics>div{background:#f7f5f0;border-radius:12px;padding:16px}.ops-metrics span{display:block;color:#747b73;font-size:12px;margin-bottom:10px}.ops-metrics strong{font-size:24px;letter-spacing:-.5px}.ops-return-link{display:inline-flex;align-items:center;gap:7px;color:#df482b;font-size:13px;font-weight:800;text-decoration:none;margin-top:23px}.ops-login-card>.ops-muted{margin-bottom:0}
 .ops-user-admin{margin-top:18px}.ops-user-form{max-width:600px;grid-template-columns:repeat(2,minmax(0,1fr));align-items:end}.ops-user-form label{min-width:0}.ops-user-form input,.ops-user-form select{width:100%;box-sizing:border-box;padding:13px 14px;border:1px solid #dedfd9;border-radius:11px;background:#fcfcfa;color:#191d1b;font:inherit;font-size:14px}.ops-user-form .ops-submit{grid-column:1/-1}.ops-success{padding:12px 14px;border-radius:10px;background:#eaf7ed;color:#246b38;font-size:13px;line-height:1.5}.ops-user-list-title{font-size:16px;margin:28px 0 12px}.ops-user-list{display:grid;gap:8px}.ops-user-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 15px;border:1px solid #e8e5dd;border-radius:11px}.ops-user-row strong,.ops-user-row span{display:block}.ops-user-row strong{font-size:13px}.ops-user-row div span{font-size:12px;color:#7b8079;margin-top:4px}.ops-user-active,.ops-user-inactive{font-size:11px;font-weight:700}.ops-user-active{color:#27834a}.ops-user-inactive{color:#a64c3e}
-        @media(max-width:650px){.ops-page{padding:0 16px 36px}.ops-topbar{height:70px}.ops-shell{margin-top:32px}.ops-heading{margin:17px 0 24px}.ops-emblem{width:55px;height:55px;border-radius:17px}.ops-emblem svg{width:25px}.ops-login-card{padding:23px 20px}.ops-grid{grid-template-columns:1fr}.ops-section-card{min-height:140px}.ops-welcome{padding:23px 20px 75px}.ops-logout{top:auto;left:20px;right:auto;bottom:18px}.ops-section-head{align-items:flex-start;flex-direction:column}.ops-metrics{grid-template-columns:1fr}.ops-user-form{grid-template-columns:1fr}.ops-user-form .ops-submit{grid-column:auto}.ops-detail{padding:19px}}
+        @media(max-width:650px){.ops-alert-bar{align-items:flex-start;flex-direction:column}.ops-order-list{grid-template-columns:1fr}.ops-page{padding:0 16px 36px}.ops-topbar{height:70px}.ops-shell{margin-top:32px}.ops-heading{margin:17px 0 24px}.ops-emblem{width:55px;height:55px;border-radius:17px}.ops-emblem svg{width:25px}.ops-login-card{padding:23px 20px}.ops-grid{grid-template-columns:1fr}.ops-section-card{min-height:140px}.ops-welcome{padding:23px 20px 75px}.ops-logout{top:auto;left:20px;right:auto;bottom:18px}.ops-section-head{align-items:flex-start;flex-direction:column}.ops-metrics{grid-template-columns:1fr}.ops-user-form{grid-template-columns:1fr}.ops-user-form .ops-submit{grid-column:auto}.ops-detail{padding:19px}}
       `}</style>
     </main>
   );
