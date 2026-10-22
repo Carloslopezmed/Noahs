@@ -122,6 +122,19 @@ export default function OperacionesPage() {
     }
   }
 
+  async function deleteStaff(staff: any) {
+    if (!window.confirm(`¿Eliminar el acceso de ${staff.name}? El historial de pedidos y cobros se conservará.`)) return;
+    setBusy(true); setError(''); setUserNotice('');
+    try {
+      await api({ action: 'deleteUser', id: staff.id });
+      setUserNotice(`Acceso de ${staff.name} desactivado. El historial se conserva.`);
+      const data = await api({ action: 'dashboard', agency: user?.role === 'master' ? '' : user?.agency || '' });
+      setDashboard(data);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'No se pudo eliminar el acceso.');
+    } finally { setBusy(false); }
+  }
+
   async function updateOrder(order: any, status: string, driver?: string) {
     setBusy(true); setError('');
     try {
@@ -216,7 +229,7 @@ export default function OperacionesPage() {
             <div className="ops-welcome">
               <div><span className="ops-status-dot" /> SESIÓN ACTIVA</div>
               <h2>Hola, {user.name || user.username}.</h2>
-              <p>{roles[user.role] || user.role}{user.agency ? ' · Agencia asignada' : ' · Acceso general'}</p>
+              <p>{roles[user.role] || user.role}{user.agency ? ' · ' + (agencies.find((a: any) => a.id === user.agency)?.name || user.agency) : ' · Acceso general'}</p>
               <button onClick={logout} disabled={busy} className="ops-logout"><LogOut size={15} /> Cerrar sesión</button>
             </div>
             <div className="ops-section-head"><div><p className="ops-kicker">TU ESPACIO DE TRABAJO</p><h2>Elegí una pantalla</h2></div><span className="ops-live"><span /> Actualización automática</span></div>
@@ -267,7 +280,7 @@ export default function OperacionesPage() {
                 {userNotice && <p className="ops-success" role="status">{userNotice}</p>}
                 {error && <p className="ops-error" role="alert">{error}</p>}
                 <h4 className="ops-user-list-title">Usuarios registrados</h4>
-                <div className="ops-user-list">{(dashboard?.staff || []).map((staff: any) => <div className="ops-user-row" key={staff.id}><div><strong>{staff.name}</strong><span>@{staff.username} · {roles[staff.role] || staff.role}</span></div><span className={staff.active && !staff.deleted ? 'ops-user-active' : 'ops-user-inactive'}>{staff.active && !staff.deleted ? 'Activo' : 'Inactivo'}</span></div>)}{!dashboard?.staff?.length && <p className="ops-muted">Todavía no hay usuarios para mostrar.</p>}</div>
+                <div className="ops-user-list">{(dashboard?.staff || []).map((staff: any) => <div className="ops-user-row" key={staff.id}><div><strong>{staff.name}</strong><span>@{staff.username} · {roles[staff.role] || staff.role} · {agencies.find((a: any) => a.id === staff.agency)?.name || (staff.role === 'master' ? 'Acceso general' : staff.agency || 'Sin agencia')}</span></div><div className="ops-user-row-actions"><span className={staff.active && !staff.deleted ? 'ops-user-active' : 'ops-user-inactive'}>{staff.active && !staff.deleted ? 'Activo' : 'Inactivo'}</span>{staff.id !== user.id && staff.role !== 'master' && staff.active && !staff.deleted && <button type="button" className="ops-delete-user" disabled={busy} onClick={() => deleteStaff(staff)}>Eliminar</button>}</div></div>)}{!dashboard?.staff?.length && <p className="ops-muted">Todavía no hay usuarios para mostrar.</p>}</div>
               </div>}
               <a className="ops-return-link" href="/">Volver al menú de Noah’s <ArrowUpRight size={15} /></a>
             </div>
@@ -275,7 +288,7 @@ export default function OperacionesPage() {
         )}
       </div>
       <style jsx global>{`
-        .ops-order-list{display:grid;gap:12px;margin-top:18px}.ops-order-card{background:#fff;border:1px solid #e2ded4;border-radius:14px;padding:16px;display:grid;gap:8px}.ops-order-card p{margin:0;font-size:14px;line-height:1.45}.ops-order-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.ops-order-status{font-size:12px;padding:6px 9px;border-radius:20px;background:#f3ead7}.ops-order-total{font-weight:700}.ops-order-card label{display:grid;gap:6px;font-size:13px}.ops-order-card select{padding:10px;border:1px solid #d5d0c4;border-radius:8px;background:white}.ops-order-actions{display:flex;gap:8px;flex-wrap:wrap}.ops-order-actions button{border:0;border-radius:8px;padding:10px 12px;background:#a63c1e;color:white;font-weight:700;cursor:pointer}.ops-order-actions button:disabled{opacity:.5;cursor:wait}.ops-page{min-height:100vh;background:#f5f2eb;color:#191d1b;font-family:Arial,Helvetica,sans-serif;padding:0 24px 60px}
+        .ops-user-row-actions{display:flex;align-items:center;gap:10px}.ops-delete-user{border:1px solid #b42318;border-radius:7px;padding:7px 10px;background:#fff;color:#b42318;font-weight:700;cursor:pointer}.ops-delete-user:disabled{opacity:.5;cursor:wait}.ops-order-list{display:grid;gap:12px;margin-top:18px}.ops-order-card{background:#fff;border:1px solid #e2ded4;border-radius:14px;padding:16px;display:grid;gap:8px}.ops-order-card p{margin:0;font-size:14px;line-height:1.45}.ops-order-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.ops-order-status{font-size:12px;padding:6px 9px;border-radius:20px;background:#f3ead7}.ops-order-total{font-weight:700}.ops-order-card label{display:grid;gap:6px;font-size:13px}.ops-order-card select{padding:10px;border:1px solid #d5d0c4;border-radius:8px;background:white}.ops-order-actions{display:flex;gap:8px;flex-wrap:wrap}.ops-order-actions button{border:0;border-radius:8px;padding:10px 12px;background:#a63c1e;color:white;font-weight:700;cursor:pointer}.ops-order-actions button:disabled{opacity:.5;cursor:wait}.ops-page{min-height:100vh;background:#f5f2eb;color:#191d1b;font-family:Arial,Helvetica,sans-serif;padding:0 24px 60px}
         .ops-topbar{height:82px;max-width:1120px;margin:auto;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #dedbd2}
         .ops-brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:inherit}.ops-brand-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:#ed4d2e;color:#fff;font-size:25px;font-weight:900;font-style:italic}.ops-brand strong{display:block;font-size:19px;letter-spacing:-.7px}.ops-brand small{display:block;font-size:9px;letter-spacing:1.8px;color:#777d76;margin-top:3px}
         .ops-menu-link{display:flex;align-items:center;gap:7px;color:#303831;text-decoration:none;font-weight:700;font-size:14px}
