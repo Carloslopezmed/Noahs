@@ -174,3 +174,11 @@ El carrito actualiza la configuración al abrirse y cada 30 segundos mientras pe
 Corrección Ciudad Peronia: combo para 4 conserva Q225 y elección de cuatro hamburguesas; incluye cuatro porciones de papas y una Coca-Cola de 1.5 litros. Se aplica en catálogo, carrito y snapshot de nuevos pedidos/WhatsApp; no modifica pedidos históricos ni los combos de otras agencias. Precios confirmados de combos individuales: Q59; Quesoburguesa Q40, Tejana Q64, Smash Q60 y Master Q60 (nueva).
 
 Combos individuales de hamburguesa: selección obligatoria sin recargo entre papas fritas y bolsa de Lay’s. No afecta hamburguesas solas ni combos para compartir. Se conserva la bebida previamente definida por producto. El carrito permite completar/cambiar el acompañamiento, incluidos carritos guardados antes del cambio; servidor rechaza opciones faltantes o no válidas y guarda la selección en el snapshot para cocina, operación y WhatsApp.
+
+## Documentación para continuar el desarrollo
+
+- [Mapa del proyecto: directorios, búsqueda de código y flujo de cambios](docs/MAPA_DEL_PROYECTO.md)
+- [Guía rápida para modificar productos y precios](docs/GUIA_CAMBIOS_CATALOGO.md)
+- [Guía técnica: entorno, arquitectura, Cloudflare Workers y D1](docs/GUIA_TECNICA.md)
+
+Para modificar productos o precios, empezar por el mapa del proyecto y la guía de catálogo; buscar el producto en el código actual y verificar la validación del servidor antes de editar.
