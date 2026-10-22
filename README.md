@@ -1,5 +1,7 @@
 # Noah’s · Pedidos por agencia
 
+> **Documentación para desarrolladores:** consulta [`docs/GUIA_TECNICA.md`](docs/GUIA_TECNICA.md) para repositorio, arquitectura, entorno local, Cloudflare Workers/D1, despliegue, seguridad y lista de verificación para futuros cambios.
+
 Aplicación independiente de Javi Pizza. Catálogo visual, carrito, pedidos y seguimiento, operación por agencia, usuarios con PIN de ocho dígitos, cocina, reparto, cobros, liquidaciones y conteos de caja. No contiene usuarios ni datos operativos de otros negocios.
 
 ## Primer acceso
