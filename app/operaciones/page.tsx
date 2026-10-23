@@ -162,7 +162,7 @@ export default function OperacionesPage() {
     if (order.status === 'received') void updateOrder(order, 'confirmed');
   }
 
-  async function collectOrder(order: any, method: 'cash' | 'card') {
+  async function claimOrder(order: any) {\n    setBusy(true); setError('');\n    try {\n      await api({ action: 'claimOrder', id: order.id });\n      const data = await api({ action: 'dashboard', agency: user?.role === 'master' ? '' : user?.agency || '' });\n      setDashboard(data);\n      setUserNotice(`Tomaste el pedido ${order.code}. Ya aparece como asignado a tu usuario.`);\n    } catch (e) {\n      setError(e instanceof Error ? e.message : 'No se pudo tomar el pedido.');\n    } finally { setBusy(false); }\n  }\n\n  async function collectOrder(order: any, method: 'cash' | 'card') {
     setBusy(true); setError('');
     try {
       await api({ action: 'collect', id: order.id, revision: order.revision, method });
@@ -305,7 +305,7 @@ export default function OperacionesPage() {
                     <p className="ops-order-total">Total Q{(o.total / 100).toFixed(2)} · {o.driver_name ? 'Motorista: ' + o.driver_name : 'Sin motorista asignado'}</p>
                     {['received','confirmed'].includes(o.status) && ['master','manager','cashier'].includes(user.role) && <div className="ops-order-actions"><button className="primary" disabled={busy} onClick={() => o.status === 'received' ? updateOrder(o, 'confirmed') : setPendingWhatsAppOrder(o)}>{o.status === 'received' ? '✓ Confirmar pedido' : 'Enviar WhatsApp al cliente'}</button></div>}
                     {o.status === 'ready' && o.mode !== 'pickup' && ['master','manager'].includes(user.role) && <label>Asignar motorista<select defaultValue="" disabled={busy} onChange={(e) => { if (e.target.value) updateOrder(o, 'assigned', e.target.value); }}><option value="">Seleccionar motorista…</option>{driverOptions.filter((d: any) => d.agency === o.agency).map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}</select></label>}
-                    {activeTab?.id === 'driver' && o.status === 'onway' && (user.role === 'driver' || user.id === o.driver) && !o.paid_method && <div className="ops-order-actions"><button disabled={busy} onClick={() => collectOrder(o, 'cash')}>Registrar cobro en efectivo</button><button disabled={busy} onClick={() => collectOrder(o, 'card')}>Registrar cobro con tarjeta</button></div>}
+                    {activeTab?.id === 'driver' && user.role === 'driver' && o.status === 'ready' && o.mode !== 'pickup' && !o.driver && <div className="ops-order-actions"><button className="primary" disabled={busy} onClick={() => claimOrder(o)}>Tomar pedido</button></div>}\n                    {activeTab?.id === 'driver' && o.status === 'onway' && (user.role === 'driver' || user.id === o.driver) && !o.paid_method && <div className="ops-order-actions"><button disabled={busy} onClick={() => collectOrder(o, 'cash')}>Registrar cobro en efectivo</button><button disabled={busy} onClick={() => collectOrder(o, 'card')}>Registrar cobro con tarjeta</button></div>}
                     {o.status === 'onway' && o.paid_method && <p className="ops-muted">Cobro registrado: {o.paid_method === 'cash' ? 'Efectivo' : 'Tarjeta'}</p>}
                     <div className="ops-order-actions">{orderActions(o).map(([status, label]: any) => <button key={status} disabled={busy} onClick={() => updateOrder(o, status)}>{label}</button>)}</div>
                   </article>)}
