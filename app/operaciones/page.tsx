@@ -49,6 +49,7 @@ export default function OperacionesPage() {
   const [agencies, setAgencies] = useState<any[]>([]);
   const [newUser, setNewUser] = useState({ name: '', username: '', role: 'cashier', agency: 'peronia', pin: '' });
   const [userNotice, setUserNotice] = useState('');
+  const [pendingWhatsAppOrder, setPendingWhatsAppOrder] = useState<any | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -141,6 +142,7 @@ export default function OperacionesPage() {
       await api({ action: 'transition', id: order.id, revision: order.revision, status, ...(driver ? { driver } : {}) });
       const data = await api({ action: 'dashboard', agency: user?.role === 'master' ? '' : user?.agency || '' });
       setDashboard(data);
+      if (status === 'confirmed') setPendingWhatsAppOrder({ ...order, status: 'confirmed' });
     } catch (e) {
       setError(e instanceof Error ? e.message : 'No se pudo actualizar el pedido.');
     } finally { setBusy(false); }
@@ -301,7 +303,7 @@ export default function OperacionesPage() {
                     {o.mode !== 'pickup' && o.address && <p>{o.address}</p>}
                     <p>{(o.items || []).map((i: any) => i.quantity + ' × ' + i.name + (i.choices?.length ? ' (' + i.choices.join(', ') + ')' : '')).join(' · ')}</p>
                     <p className="ops-order-total">Total Q{(o.total / 100).toFixed(2)} · {o.driver_name ? 'Motorista: ' + o.driver_name : 'Sin motorista asignado'}</p>
-                    {['received','confirmed'].includes(o.status) && ['master','manager','cashier'].includes(user.role) && <div className="ops-order-actions"><button className="primary" disabled={busy} onClick={() => confirmByWhatsApp(o)}>{o.status === 'received' ? '✓ Confirmar y enviar WhatsApp' : 'Enviar WhatsApp al cliente'}</button></div>}
+                    {['received','confirmed'].includes(o.status) && ['master','manager','cashier'].includes(user.role) && <div className="ops-order-actions"><button className="primary" disabled={busy} onClick={() => o.status === 'received' ? updateOrder(o, 'confirmed') : setPendingWhatsAppOrder(o)}>{o.status === 'received' ? '✓ Confirmar pedido' : 'Enviar WhatsApp al cliente'}</button></div>}
                     {o.status === 'ready' && o.mode !== 'pickup' && ['master','manager'].includes(user.role) && <label>Asignar motorista<select defaultValue="" disabled={busy} onChange={(e) => { if (e.target.value) updateOrder(o, 'assigned', e.target.value); }}><option value="">Seleccionar motorista…</option>{driverOptions.filter((d: any) => d.agency === o.agency).map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}</select></label>}
                     {activeTab?.id === 'driver' && o.status === 'onway' && (user.role === 'driver' || user.id === o.driver) && !o.paid_method && <div className="ops-order-actions"><button disabled={busy} onClick={() => collectOrder(o, 'cash')}>Registrar cobro en efectivo</button><button disabled={busy} onClick={() => collectOrder(o, 'card')}>Registrar cobro con tarjeta</button></div>}
                     {o.status === 'onway' && o.paid_method && <p className="ops-muted">Cobro registrado: {o.paid_method === 'cash' ? 'Efectivo' : 'Tarjeta'}</p>}
@@ -326,6 +328,7 @@ export default function OperacionesPage() {
                 <h4 className="ops-user-list-title">Usuarios registrados</h4>
                 <div className="ops-user-list">{(dashboard?.staff || []).map((staff: any) => <div className="ops-user-row" key={staff.id}><div><strong>{staff.name}</strong><span>@{staff.username} · {roles[staff.role] || staff.role} · {agencies.find((a: any) => a.id === staff.agency)?.name || (staff.role === 'master' ? 'Acceso general' : staff.agency || 'Sin agencia')}</span></div><div className="ops-user-row-actions"><span className={staff.active && !staff.deleted ? 'ops-user-active' : 'ops-user-inactive'}>{staff.active && !staff.deleted ? 'Activo' : 'Inactivo'}</span>{staff.id !== user.id && staff.role !== 'master' && staff.active && !staff.deleted && <button type="button" className="ops-delete-user" disabled={busy} onClick={() => deleteStaff(staff)}>Eliminar</button>}</div></div>)}{!dashboard?.staff?.length && <p className="ops-muted">Todavía no hay usuarios para mostrar.</p>}</div>
               </div>}
+              {pendingWhatsAppOrder && <div className="ops-modal-backdrop" role="presentation"><section className="ops-whatsapp-modal" role="dialog" aria-modal="true" aria-labelledby="whatsapp-modal-title"><button type="button" className="ops-modal-close" aria-label="Cerrar" onClick={() => setPendingWhatsAppOrder(null)}>×</button><div className="ops-modal-whatsapp-icon">✆</div><h3 id="whatsapp-modal-title">Pedido confirmado</h3><p>¿Deseás enviar el mensaje de confirmación por WhatsApp al cliente <strong>{pendingWhatsAppOrder.customer}</strong> para el pedido <strong>{pendingWhatsAppOrder.code}</strong>?</p><div className="ops-modal-actions"><button type="button" onClick={() => setPendingWhatsAppOrder(null)}>Ahora no</button><button type="button" className="primary" onClick={() => { const order = pendingWhatsAppOrder; setPendingWhatsAppOrder(null); confirmByWhatsApp(order); }}>Abrir WhatsApp y enviar mensaje</button></div></section></div>}
               <a className="ops-return-link" href="/">Volver al menú de Noah’s <ArrowUpRight size={15} /></a>
             </div>
           </section>
