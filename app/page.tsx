@@ -117,7 +117,8 @@ function Operations({user,agencies,onRefresh,onExit,onLogout,notify,toast}:{user
   const phone=String(o.phone).replace(/\D/g,'').replace(/^0/,'');
   const customerPhone=phone.startsWith('502')?phone:'502'+phone;
   const itemLines=(o.items||[]).map((i:any)=>'• '+i.quantity+' × '+i.name+(i.choices?.length?' ('+i.choices.join(', ')+')':'')).join('\n');
-  const message='¡Hola '+o.customer+'! Te confirmamos que recibimos tu pedido '+o.code+' en Noah’s, '+(agencies.find(a=>a.id===o.agency)?.short||'')+'.\n\n'+itemLines+'\n\nTotal: '+money(o.total)+'\nEntrega: '+(o.mode==='pickup'?'Retiro en agencia':'A domicilio')+(o.address?'\nDirección: '+o.address:'')+'\n\n¡Gracias por pedir en Noah’s!';
+  const trackingUrl='https://noahs-pedidos.lamqvar99057.chatgpt.site/';
+  const message='¡Hola '+o.customer+'! Te confirmamos que recibimos tu pedido '+o.code+' en Noah’s, '+(agencies.find(a=>a.id===o.agency)?.short||'')+'.\n\n'+itemLines+'\n\nTotal: '+money(o.total)+'\nEntrega: '+(o.mode==='pickup'?'Retiro en agencia':'A domicilio')+(o.address?'\nDirección: '+o.address:'')+'\n\nPara ver el estado de tu pedido, da clic en el siguiente enlace:\n'+trackingUrl+'\n\nAl ingresar, seleccioná “Seguí tu pedido” y escribí este código: '+o.code+'\n\n¡Gracias por pedir en Noah’s!';
   window.open('https://wa.me/'+customerPhone+'?text='+encodeURIComponent(message),'_blank');
   if(o.status==='received') transition(o,'confirmed');
  }
