@@ -140,9 +140,16 @@ export default function OperacionesPage() {
     setBusy(true); setError('');
     try {
       await api({ action: 'transition', id: order.id, revision: order.revision, status, ...(driver ? { driver } : {}) });
-      const data = await api({ action: 'dashboard', agency: user?.role === 'master' ? '' : user?.agency || '' });
-      setDashboard(data);
+      // Open the confirmation prompt immediately; refreshing the dashboard is secondary.
       if (status === 'confirmed') setPendingWhatsAppOrder({ ...order, status: 'confirmed' });
+      try {
+        const data = await api({ action: 'dashboard', agency: user?.role === 'master' ? '' : user?.agency || '' });
+        setDashboard(data);
+      } catch (refreshError) {
+        setError(refreshError instanceof Error
+          ? 'Pedido confirmado, pero no se pudo actualizar la lista: ' + refreshError.message
+          : 'Pedido confirmado. Actualizá la pantalla para ver los cambios.');
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'No se pudo actualizar el pedido.');
     } finally { setBusy(false); }
