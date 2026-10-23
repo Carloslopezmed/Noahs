@@ -146,6 +146,20 @@ export default function OperacionesPage() {
     } finally { setBusy(false); }
   }
 
+  function confirmByWhatsApp(order: any) {
+    if (!order.phone) {
+      setError('Este pedido no tiene teléfono del cliente. Revisá el número registrado.');
+      return;
+    }
+    const phone = String(order.phone).replace(/\D/g, '').replace(/^0/, '');
+    const whatsappPhone = phone.startsWith('502') ? phone : '502' + phone;
+    const itemLines = (order.items || []).map((item: any) => '• ' + item.quantity + ' × ' + item.name + (item.choices?.length ? ' (' + item.choices.join(', ') + ')' : '')).join('\n');
+    const agencyName = agencies.find((a: any) => a.id === order.agency)?.short || 'Noah’s';
+    const message = '¡Hola ' + order.customer + '! Te confirmamos que recibimos tu pedido ' + order.code + ' en Noah’s, ' + agencyName + '.\n\n' + itemLines + '\n\nTotal: Q' + (order.total / 100).toFixed(2) + '\nEntrega: ' + (order.mode === 'pickup' ? 'Retiro en agencia' : 'A domicilio') + (order.address ? '\nDirección: ' + order.address : '') + '\n\nPara consultar el estado, ingresá a la página oficial de Noah’s y elegí “Seguí tu pedido”. Código: ' + order.code + '.\n\n¡Gracias por pedir en Noah’s!';
+    window.open('https://wa.me/' + whatsappPhone + '?text=' + encodeURIComponent(message), '_blank', 'noopener,noreferrer');
+    if (order.status === 'received') void updateOrder(order, 'confirmed');
+  }
+
   async function collectOrder(order: any, method: 'cash' | 'card') {
     setBusy(true); setError('');
     try {
@@ -287,6 +301,7 @@ export default function OperacionesPage() {
                     {o.mode !== 'pickup' && o.address && <p>{o.address}</p>}
                     <p>{(o.items || []).map((i: any) => i.quantity + ' × ' + i.name + (i.choices?.length ? ' (' + i.choices.join(', ') + ')' : '')).join(' · ')}</p>
                     <p className="ops-order-total">Total Q{(o.total / 100).toFixed(2)} · {o.driver_name ? 'Motorista: ' + o.driver_name : 'Sin motorista asignado'}</p>
+                    {['received','confirmed'].includes(o.status) && ['master','manager','cashier'].includes(user.role) && <div className="ops-order-actions"><button className="primary" disabled={busy} onClick={() => confirmByWhatsApp(o)}>{o.status === 'received' ? '✓ Confirmar y enviar WhatsApp' : 'Enviar WhatsApp al cliente'}</button></div>}
                     {o.status === 'ready' && o.mode !== 'pickup' && ['master','manager'].includes(user.role) && <label>Asignar motorista<select defaultValue="" disabled={busy} onChange={(e) => { if (e.target.value) updateOrder(o, 'assigned', e.target.value); }}><option value="">Seleccionar motorista…</option>{driverOptions.filter((d: any) => d.agency === o.agency).map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}</select></label>}
                     {activeTab?.id === 'driver' && o.status === 'onway' && (user.role === 'driver' || user.id === o.driver) && !o.paid_method && <div className="ops-order-actions"><button disabled={busy} onClick={() => collectOrder(o, 'cash')}>Registrar cobro en efectivo</button><button disabled={busy} onClick={() => collectOrder(o, 'card')}>Registrar cobro con tarjeta</button></div>}
                     {o.status === 'onway' && o.paid_method && <p className="ops-muted">Cobro registrado: {o.paid_method === 'cash' ? 'Efectivo' : 'Tarjeta'}</p>}
