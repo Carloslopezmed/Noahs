@@ -146,6 +146,17 @@ export default function OperacionesPage() {
     } finally { setBusy(false); }
   }
 
+  async function collectOrder(order: any, method: 'cash' | 'card') {
+    setBusy(true); setError('');
+    try {
+      await api({ action: 'collect', id: order.id, revision: order.revision, method });
+      const data = await api({ action: 'dashboard', agency: user?.role === 'master' ? '' : user?.agency || '' });
+      setDashboard(data);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'No se pudo registrar el cobro.');
+    } finally { setBusy(false); }
+  }
+
   const statusNames: Record<string, string> = {
     received: 'Pendiente de confirmación', confirmed: 'Confirmado', preparing: 'En preparación',
     ready: 'Preparado', assigned: 'Asignado a motorista', onway: 'En ruta',
@@ -161,7 +172,7 @@ export default function OperacionesPage() {
     if (o.status === 'ready' && o.mode === 'pickup' && ['master','manager','cashier'].includes(user?.role || '')) actions.push(['delivered', 'Entregado en mostrador']);
     if (o.status === 'assigned' && ['master','manager'].includes(user?.role || '')) actions.push(['ready', 'Quitar asignación']);
     if (o.status === 'assigned' && (canManage || user?.id === o.driver)) actions.push(['onway', 'Marcar en ruta']);
-    if (o.status === 'onway' && (canManage || user?.id === o.driver)) actions.push(['delivered', 'Marcar entregado']);
+    if (o.status === 'onway' && o.paid_method && (canManage || user?.id === o.driver)) actions.push(['delivered', 'Marcar entregado']);
     return actions;
   };
   const driverOptions = (dashboard?.staff || []).filter((s: any) => s.role === 'driver' && s.active && !s.deleted);
@@ -277,6 +288,8 @@ export default function OperacionesPage() {
                     <p>{(o.items || []).map((i: any) => i.quantity + ' × ' + i.name + (i.choices?.length ? ' (' + i.choices.join(', ') + ')' : '')).join(' · ')}</p>
                     <p className="ops-order-total">Total Q{(o.total / 100).toFixed(2)} · {o.driver_name ? 'Motorista: ' + o.driver_name : 'Sin motorista asignado'}</p>
                     {o.status === 'ready' && o.mode !== 'pickup' && ['master','manager'].includes(user.role) && <label>Asignar motorista<select defaultValue="" disabled={busy} onChange={(e) => { if (e.target.value) updateOrder(o, 'assigned', e.target.value); }}><option value="">Seleccionar motorista…</option>{driverOptions.filter((d: any) => d.agency === o.agency).map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}</select></label>}
+                    {activeTab?.id === 'driver' && o.status === 'onway' && (user.role === 'driver' || user.id === o.driver) && !o.paid_method && <div className="ops-order-actions"><button disabled={busy} onClick={() => collectOrder(o, 'cash')}>Registrar cobro en efectivo</button><button disabled={busy} onClick={() => collectOrder(o, 'card')}>Registrar cobro con tarjeta</button></div>}
+                    {o.status === 'onway' && o.paid_method && <p className="ops-muted">Cobro registrado: {o.paid_method === 'cash' ? 'Efectivo' : 'Tarjeta'}</p>}
                     <div className="ops-order-actions">{orderActions(o).map(([status, label]: any) => <button key={status} disabled={busy} onClick={() => updateOrder(o, status)}>{label}</button>)}</div>
                   </article>)}
                   {!(dashboard?.orders || []).some((o: any) => activeTab?.id === 'orders' ? ['received','confirmed'].includes(o.status) : ['ready','assigned','onway'].includes(o.status)) && <p className="ops-muted">No hay pedidos pendientes en esta pantalla.</p>}
