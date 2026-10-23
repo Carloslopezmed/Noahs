@@ -164,7 +164,7 @@ export default function OperacionesPage() {
     const whatsappPhone = phone.startsWith('502') ? phone : '502' + phone;
     const itemLines = (order.items || []).map((item: any) => '• ' + item.quantity + ' × ' + item.name + (item.choices?.length ? ' (' + item.choices.join(', ') + ')' : '')).join('\n');
     const agencyName = agencies.find((a: any) => a.id === order.agency)?.short || 'Noah’s';
-    const message = '¡Hola ' + order.customer + '! Te confirmamos que recibimos tu pedido ' + order.code + ' en Noah’s, ' + agencyName + '.\n\n' + itemLines + '\n\nTotal: Q' + (order.total / 100).toFixed(2) + '\nEntrega: ' + (order.mode === 'pickup' ? 'Retiro en agencia' : 'A domicilio') + (order.address ? '\nDirección: ' + order.address : '') + '\n\nPara consultar el estado de tu pedido, ingresá aquí: https://noahs.noahspedidos.workers.dev/ y elegí “Seguí tu pedido”. Código: ' + order.code + '.\n\n¡Gracias por pedir en Noah’s!';
+    const message = '¡Hola ' + order.customer + '! Te confirmamos que recibimos tu pedido ' + order.code + ' en Noah’s, ' + agencyName + '.\n\n' + itemLines + '\n\nTotal: Q' + (order.total / 100).toFixed(2) + '\nEntrega: ' + (order.mode === 'pickup' ? 'Retiro en agencia' : 'A domicilio') + (order.address ? '\nDirección: ' + order.address : '') + '\n\nConsultá el estado de tu pedido por etapas aquí: https://noahs.noahspedidos.workers.dev/?seguimiento=' + encodeURIComponent(order.code) + ' . Código: ' + order.code + '.\n\n¡Gracias por pedir en Noah’s!';
     window.open('https://wa.me/' + whatsappPhone + '?text=' + encodeURIComponent(message), '_blank', 'noopener,noreferrer');
     if (order.status === 'received') void updateOrder(order, 'confirmed');
   }
