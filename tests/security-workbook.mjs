@@ -70,7 +70,7 @@ const workbook = makeXlsx([
   ['Nombre', 'Usuario', 'Rol', 'Agencia', 'Estado'],
   ['José & Ana', 'user<1>', 'Maestro', 'Plaza Balcones', 'Activo'],
   ['Texto', '=1+1', 'Caja', 'Peronia', 'Activo'],
-  ['Control\\u0001', 'usuario', 'Caja', 'Peronia', 'Activo'],
+  ['Control\u0001', 'usuario', 'Caja', 'Peronia', 'Activo'],
 ]);
 const bytes = workbook;
 const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
@@ -124,7 +124,7 @@ check(sheet.includes('user&lt;1&gt;'), true);
 check(sheet.includes('=1+1'), true);
 check(sheet.includes('<c r="B3" t="inlineStr">'), true);
 check(sheet.includes('Control'), true);
-check(sheet.includes('Control\\u0001'), false);
+check(sheet.includes('Control\u0001'), false);
 
 // The UI export must not select or serialize credential material.
 const page = readFileSync('app/operaciones/page.tsx', 'utf8');
