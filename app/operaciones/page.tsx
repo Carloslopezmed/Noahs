@@ -206,7 +206,8 @@ export default function OperacionesPage() {
     if (order.status === 'received') void updateOrder(order, 'confirmed');
   }
 
-  async function claimOrder(order: any) {\n    setBusy(true); setError('');\n    try {\n      await api({ action: 'claimOrder', id: order.id });\n      const data = await api({ action: 'dashboard', agency: user?.role === 'master' ? '' : user?.agency || '' });\n      setDashboard(data);\n      setUserNotice(`Tomaste el pedido ${order.code}. Ya aparece como asignado a tu usuario.`);\n    } catch (e) {\n      setError(e instanceof Error ? e.message : 'No se pudo tomar el pedido.');\n    } finally { setBusy(false); }\n  }\n\n  async function collectOrder(order: any, method: 'cash' | 'card') {
+  async function claimOrder(order: any) {
+    setBusy(true); setError('');\n    try {\n      await api({ action: 'claimOrder', id: order.id });\n      const data = await api({ action: 'dashboard', agency: user?.role === 'master' ? '' : user?.agency || '' });\n      setDashboard(data);\n      setUserNotice(`Tomaste el pedido ${order.code}. Ya aparece como asignado a tu usuario.`);\n    } catch (e) {\n      setError(e instanceof Error ? e.message : 'No se pudo tomar el pedido.');\n    } finally { setBusy(false); }\n  }\n\n  async function collectOrder(order: any, method: 'cash' | 'card') {
     setBusy(true); setError('');
     try {
       await api({ action: 'collect', id: order.id, revision: order.revision, method });
