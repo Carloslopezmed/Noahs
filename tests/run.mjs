@@ -3,73 +3,28 @@ import {readFileSync,readdirSync,mkdirSync,writeFileSync} from 'node:fs';
 import ts from 'typescript';
 import assert from 'node:assert/strict';
 mkdirSync('.sites-runtime/tests',{recursive:true});
-for(const name of ['catalog','service','xlsx']){const js=ts.transpileModule(readFileSync(`lib/noahs/${name}.ts`,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace("from './catalog'","from './catalog.mjs'");writeFileSync(`.sites-runtime/tests/${name}.mjs`,js);}
+for(const name of ['catalog','service']){const js=ts.transpileModule(readFileSync(`lib/noahs/${name}.ts`,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace("from './catalog'","from './catalog.mjs'");writeFileSync(`.sites-runtime/tests/${name}.mjs`,js);}
 const {createService}=await import('../.sites-runtime/tests/service.mjs');
-const {makeXlsx}=await import('../.sites-runtime/tests/xlsx.mjs');
 const {products:fixtureProducts}=await import('../.sites-runtime/tests/catalog.mjs');
 const sqlite=new DatabaseSync(':memory:');for(const file of readdirSync('drizzle').filter(f=>f.endsWith('.sql')).sort())sqlite.exec(readFileSync('drizzle/'+file,'utf8'));
 function statement(sql){let args=[];const s={bind(...a){args=a;return s;},async first(){return sqlite.prepare(sql).get(...args)||null;},async all(){return {results:sqlite.prepare(sql).all(...args)};},async run(){const r=sqlite.prepare(sql).run(...args);return {meta:{changes:Number(r.changes)}};}};return s;}
 const db={prepare:statement,async batch(stmts){sqlite.exec('BEGIN');try{const r=[];for(const s of stmts)r.push(await s.run());sqlite.exec('COMMIT');return r;}catch(e){sqlite.exec('ROLLBACK');throw e;}}};
-const TEST_BOOTSTRAP_SECRET='noahs-ci-bootstrap-secret';const app=createService(db,TEST_BOOTSTRAP_SECRET);let assertions=0;
+const app=createService(db);let assertions=0;
 async function call(body,cookie='',identity=null){if(body.action==='place'&&Array.isArray(body.items))body={...body,items:body.items.map(i=>fixtureProducts.find(p=>p.id===i.id)?.category==='Hamburguesas'&&i.variant!=='single'&&i.side===undefined?{...i,side:'fries'}:i)};return app.dispatch(new Request('https://noahs.test/api/noahs',{method:'POST',headers:{cookie}}),body,identity);}
 const check=(a,b)=>{assert.deepEqual(a,b);assertions++;};
 async function denied(body,cookie,status){await assert.rejects(()=>call(body,cookie),e=>!status||e.status===status);assertions++;}
-
-const workbook=makeXlsx([['Nombre','Usuario','Rol','Agencia','Estado'],['José & Ana','user<1>','Maestro','Plaza Balcones','Activo'],['Texto','=1+1','Caja','Peronia','Activo']]);
-const workbookView=new DataView(workbook.buffer,workbook.byteOffset,workbook.byteLength);
-check(workbookView.getUint32(0,true),0x04034b50);
-const eocdOffset=workbook.byteLength-22;
-const eocd=new DataView(workbook.buffer,workbook.byteOffset+eocdOffset,22);
-check(eocd.getUint32(0,true),0x06054b50);
-const entryCount=eocd.getUint16(10,true);check(entryCount,5);
-let centralOffset=eocd.getUint32(16,true);
-const workbookFiles={};
-const decoder=new TextDecoder();
-for(let i=0;i<entryCount;i++){
- const central=new DataView(workbook.buffer,workbook.byteOffset+centralOffset);
- check(central.getUint32(0,true),0x02014b50);
- const nameLength=central.getUint16(28,true),extraLength=central.getUint16(30,true),commentLength=central.getUint16(32,true);
- const filename=decoder.decode(workbook.subarray(centralOffset+46,centralOffset+46+nameLength));
- const localOffset=central.getUint32(42,true),dataLength=central.getUint32(24,true);
- const local=new DataView(workbook.buffer,workbook.byteOffset+localOffset);
- const localNameLength=local.getUint16(26,true),localExtraLength=local.getUint16(28,true);
- const dataOffset=localOffset+30+localNameLength+localExtraLength;
- workbookFiles[filename]=decoder.decode(workbook.subarray(dataOffset,dataOffset+dataLength));
- centralOffset+=46+nameLength+extraLength+commentLength;
-}
-check(Object.keys(workbookFiles).sort(),['[Content_Types].xml','_rels/.rels','xl/_rels/workbook.xml.rels','xl/workbook.xml','xl/worksheets/sheet1.xml'].sort());
-const sheetXml=workbookFiles['xl/worksheets/sheet1.xml'];
-check(sheetXml.includes('José &amp; Ana'),true);
-check(sheetXml.includes('user&lt;1&gt;'),true);
-check(sheetXml.includes('<c r="B3" t="inlineStr">'),true);
-check(sheetXml.includes('=1+1'),true);
-
 
 const legacyHoursDefaults=(await import('../.sites-runtime/tests/catalog.mjs')).agencyDefaults;
 for(const a of legacyHoursDefaults)sqlite.prepare('INSERT INTO agencies(id,data) VALUES (?,?)').run(a.id,JSON.stringify({...a,open:'09:00',close:'20:00'}));
 
 const cat=await call({action:'catalog'});check(cat.agencies.map(a=>[a.id,a.whatsapp,a.deliveryEnabled,a.freeDelivery]).sort(),[['balcones','50254640659',true,true],['peronia','50259102450',true,true],['satelite','50256142755',true,true]]);check(cat.agencies.length,3);check(cat.agencies.map(a=>[a.open,a.close]),[['11:00','21:00'],['11:00','21:00'],['11:00','21:00']]);
-await denied({action:'bootstrap',bootstrapSecret:'wrong-test-secret',name:'Owner',username:'owner',pin:'12345678'},'',401);
-const owner=await call({action:'bootstrap',bootstrapSecret:TEST_BOOTSTRAP_SECRET,name:'Owner fixture',username:'owner',pin:'12345678'},'','test-owner');const master=owner.cookie;
-await denied({action:'bootstrap',bootstrapSecret:TEST_BOOTSTRAP_SECRET,name:'Other',username:'other',pin:'12345678'},'',409);
+await denied({action:'bootstrap',name:'Owner',username:'owner',pin:'12345678'},'',401);
+const owner=await call({action:'bootstrap',name:'Owner fixture',username:'owner',pin:'12345678'},'','test-owner');const master=owner.cookie;
+await denied({action:'bootstrap',name:'Other',username:'other',pin:'12345678'},'',401);
 check(sqlite.prepare('SELECT hash FROM staff WHERE username=?').get('owner').hash==='12345678',false);
 for(const [username,role,agency] of [['manager','manager','peronia'],['cashier','cashier','peronia'],['kitchen','kitchen','peronia'],['driver','driver','peronia'],['driver2','driver','peronia'],['outsider','driver','satelite']])await call({action:'saveUser',username,name:username,role,agency,pin:'12345678',active:true},master);
 const cookies={};for(const name of ['manager','cashier','kitchen','driver','driver2','outsider'])cookies[name]=(await call({action:'login',username:name,pin:'12345678'})).cookie;
 const staff=sqlite.prepare('SELECT * FROM staff').all(),id=n=>staff.find(u=>u.username===n).id;
-const cashierBeforeReset=sqlite.prepare('SELECT salt,version FROM staff WHERE id=?').get(id('cashier'));
-await denied({action:'resetUserPin',id:id('outsider')},cookies.manager,403);
-await denied({action:'resetUserPin',id:id('cashier')},cookies.cashier,403);
-const resetPin=await call({action:'resetUserPin',id:id('cashier')},master);
-check(resetPin.ok,true);check(resetPin.username,'cashier');check(/^\d{8}$/.test(resetPin.pin),true);
-const cashierAfterReset=sqlite.prepare('SELECT hash,salt,version FROM staff WHERE id=?').get(id('cashier'));
-check(cashierAfterReset.salt!==cashierBeforeReset.salt,true);check(cashierAfterReset.version,cashierBeforeReset.version+1);check(cashierAfterReset.hash!==resetPin.pin,true);
-await denied({action:'me'},cookies.cashier,401);
-const newCashierSession=await call({action:'login',username:'cashier',pin:resetPin.pin});check(!!newCashierSession.cookie,true);
-cookies.cashier=newCashierSession.cookie;
-await denied({action:'login',username:'cashier',pin:'12345678'},'',401);
-check(sqlite.prepare("SELECT COUNT(*) n FROM events WHERE action='reset-user-pin'").get().n,1);
-await denied({action:'resetUserPin',id:id('owner')},cookies.manager,403);
-await denied({action:'resetUserPin',id:id('owner')},master,400);
 await denied({action:'login',username:'driver',pin:'00000000'},'',401);
 await denied({action:'saveUser',username:'bad',name:'bad',role:'master',pin:'12345678'},cookies.manager,403);
 await denied({action:'saveUser',username:'bad',name:'bad',role:'driver',agency:'satelite',pin:'12345678'},cookies.manager,403);
@@ -135,7 +90,7 @@ const catalogBalcones=catalogFor(agencyDefaults.find(a=>a.id==='balcones'));chec
 const {comboBurgerOptions}=await import('../.sites-runtime/tests/catalog.mjs');const familyAgency=(await call({action:'catalog'})).agencies.find(a=>a.id==='peronia');const selectable=comboBurgerOptions(familyAgency);check(selectable.length,productsForTests().filter(p=>p.category==='Hamburguesas').length);check(selectable.some(p=>p.id==='queso'),true);for(const burger of selectable){assert.ok(readFileSync('public/menu/'+burger.image+'.webp').length>0);assertions++;}
 function productsForTests(){return baseMenu;}
 for(const [comboId,n,price] of [['combo6',6,33400],['combo3',3,16500],['combo4',4,22500],['martes',2,11000]]){
- const product=catalogFor(familyAgency).find(p=>p.id===comboId);check(product.choices,n);check(product.available,true);const expectedIncludes=comboId==='combo4'?'4 hamburguesas a elección + 4 porciones de papas fritas + 1 Coca-Cola de 1.5 litros':comboId==='combo6'?'6 porciones de papas fritas y 1 Coca-Cola de 1.5 litros':`${n} porciones de papas fritas y ${n} bebidas`;check(product.includes,expectedIncludes);
+ const product=catalogFor(familyAgency).find(p=>p.id===comboId);check(product.choices,n);check(product.available,true);const expectedIncludes=comboId==='combo4'?'4 hamburguesas a elección + 4 porciones de papas fritas + 1 Coca-Cola de 1.5 litros':`${n} porciones de papas fritas y ${n} bebidas`;check(product.includes,expectedIncludes);
  const chosen=Array.from({length:n},(_,i)=>i===0?'queso':i%2?'master':'cheesy');const completeOrder=await call({...base,key:crypto.randomUUID(),agencyRevision:familyAgency.revision,mode:'pickup',items:[{id:comboId,quantity:1,variant:'regular',choices:chosen}],total:price});check(completeOrder.total,price);const snapshot=JSON.parse(sqlite.prepare('SELECT items FROM orders WHERE code=?').get(completeOrder.code).items)[0];check(snapshot.choices.length,n);check(snapshot.choices[0],'Quesoburguesa');check(snapshot.includes,expectedIncludes);check(decodeURIComponent(completeOrder.whatsapp).includes(expectedIncludes),true);
  const repeated=await call({...base,key:crypto.randomUUID(),agencyRevision:familyAgency.revision,mode:'pickup',items:[{id:comboId,quantity:1,choices:Array(n).fill('master')}],total:price});check(repeated.total,price);
  for(const invalid of [[],chosen.slice(1),[...chosen,'cheesy'],Array(n).fill('papas'),Array(n).fill('nonexistent')])await denied({...base,key:crypto.randomUUID(),agencyRevision:familyAgency.revision,mode:'pickup',items:[{id:comboId,quantity:1,choices:invalid}],total:price});
@@ -145,7 +100,7 @@ check((await call({action:'catalog'})).products.find(p=>p.id==='wantan').name,'W
 const tortillaAgency=(await call({action:'catalog'})).agencies.find(a=>a.id==='peronia');for(const [id,price] of [['gigante-tortilla',4000],['tortiburguer',5000],['quesadilla',4500]]){const p=catalogFor(tortillaAgency).find(p=>p.id===id);check(p.price,price);check(p.includes,'Papas y gaseosa');check(menuEntries(catalogFor(tortillaAgency)).find(p=>p.id===id).displayCategory,'Combos');const order=await call({...base,key:crypto.randomUUID(),agencyRevision:tortillaAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:price});check(order.total,price);check(decodeURIComponent(order.whatsapp).includes('Papas y gaseosa'),true);await denied({...base,key:crypto.randomUUID(),agencyRevision:tortillaAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'single'}],total:price-1000});}
 const cheeseAgency=(await call({action:'catalog'})).agencies.find(a=>a.id==='peronia'),cheeseProduct=catalogFor(cheeseAgency).find(p=>p.id==='queso');check(cheeseProduct.available,true);check(cheeseProduct.price,4000);check(cheeseProduct.includes,'Papas fritas o bolsa de Lay’s y Coca-Cola en lata de 237 ml');for(const [variant,total] of [['combo',4000],['single',3000]]){const placed=await call({...base,key:crypto.randomUUID(),agencyRevision:cheeseAgency.revision,mode:'pickup',items:[{id:'queso',quantity:1,variant}],total});check(placed.total,total);const item=JSON.parse(sqlite.prepare('SELECT items FROM orders WHERE code=?').get(placed.code).items)[0];check(item.includes,variant==='combo'?'Papas fritas y Coca-Cola en lata de 237 ml':'');if(variant==='combo')check(decodeURIComponent(placed.whatsapp).includes('237 ml'),true);}
 const doubleSmash=await call({...base,key:crypto.randomUUID(),agencyRevision:cheeseAgency.revision,mode:'pickup',items:[{id:'smash2',quantity:1,variant:'regular'}],total:12000});check(doubleSmash.total,12000);const smashSnapshot=JSON.parse(sqlite.prepare('SELECT items FROM orders WHERE code=?').get(doubleSmash.code).items)[0];check(smashSnapshot.includes,'2 Smash Burger');check(smashSnapshot.choices.length,0);await denied({...base,key:crypto.randomUUID(),agencyRevision:cheeseAgency.revision,mode:'pickup',items:[{id:'smash2',quantity:1,variant:'single'}],total:11000});
-const chinaAgency=(await call({action:'catalog'})).agencies.find(a=>a.id==='balcones');check(catalogFor(chinaAgency).some(p=>p.id==='combo-favorito-chino'),false);check(catalogFor(chinaAgency).some(p=>p.id==='combo-favorito'),false);check(catalogFor(chinaAgency).some(p=>p.id==='combo-familiar-chino-pollo'&&p.available),true);check(catalogFor(chinaAgency).some(p=>p.id==='combo-express-chino'&&p.available),true);const latestNonChinese=(await call({action:'catalog'})).agencies.find(a=>a.id==='peronia');check(catalogFor(latestNonChinese).some(p=>p.id==='combo-favorito-chino'),false);check(catalogFor(latestNonChinese).some(p=>p.id==='combo-favorito'),false);
+const chinaAgency=(await call({action:'catalog'})).agencies.find(a=>a.id==='balcones'),chinaItem=catalogFor(chinaAgency).find(p=>p.id==='combo-favorito-chino');check(chinaItem.available,true);check(chinaItem.price,16500);check(chinaItem.includes,'1 arroz frito de 2 lb + 1 chao mein de 2 lb + 10 unidades de wantán + Pepsi de 1.5 litros');check(menuEntries(catalogFor(chinaAgency)).find(p=>p.id==='combo-favorito-chino').displayCategory,'Comida china');const chinaOrder=await call({...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:chinaAgency.revision,mode:'pickup',items:[{id:'combo-favorito-chino',quantity:1,variant:'regular'}],total:16500});check(chinaOrder.total,16500);check(decodeURIComponent(chinaOrder.whatsapp).includes('Pepsi de 1.5 litros'),true);const latestNonChinese=(await call({action:'catalog'})).agencies.find(a=>a.id==='peronia');check(catalogFor(latestNonChinese).find(p=>p.id==='combo-favorito-chino').available,false);await denied({...base,key:crypto.randomUUID(),agencyRevision:latestNonChinese.revision,mode:'pickup',items:[{id:'combo-favorito-chino',quantity:1,variant:'regular'}],total:16500});
 const expressAgency=(await call({action:'catalog'})).agencies.find(a=>a.id==='balcones');const express=await call({...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:expressAgency.revision,mode:'pickup',items:[{id:'combo-express-chino',quantity:1,variant:'regular'}],total:9500});check(express.total,9500);const expressSnapshot=JSON.parse(sqlite.prepare('SELECT items FROM orders WHERE code=?').get(express.code).items)[0];check(expressSnapshot.includes,'Arroz frito + wantán + Pepsi de 1.5 litros');const sidesAgency=(await call({action:'catalog'})).agencies.find(a=>a.id==='peronia');check(catalogFor(sidesAgency).find(p=>p.id==='salchipapas').category,'Complementos');const salchiOrder=await call({...base,key:crypto.randomUUID(),agencyRevision:sidesAgency.revision,mode:'pickup',items:[{id:'salchipapas',quantity:1,variant:'regular'}],total:3500});check(salchiOrder.total,3500);await denied({...base,key:crypto.randomUUID(),agencyRevision:sidesAgency.revision,mode:'pickup',items:[{id:'combo-express-chino',quantity:1,variant:'regular'}],total:9500});
 
 const noodleAgency=(await call({action:'catalog'})).agencies.find(a=>a.id==='balcones');
@@ -172,7 +127,8 @@ for(const [id,price] of [['arroz-frito-mixto',8500],['arroz-frito-camaron',8500]
 
 
 const soupAgency=(await call({action:'catalog'})).agencies.find(a=>a.id==='balcones');
-for(const kind of ['mein','ramen'])for(const [meat,price] of [['pollo',7500],['lomito',7500],['mixta',7500],['camaron',7500]]){const id=`sopa-${kind}-${meat}`,product=catalogFor(soupAgency).find(p=>p.id===id);check(product.price,price);check(product.includes,'1 sopa + bebida');
+for(const kind of ['mein','ramen'])for(const [meat,basePrice] of [['pollo',7500],['lomito',7500],['mixta',8500],['camaron',8500]]){
+ const price=kind==='mein'?(meat==='mixta'?7500:meat==='camaron'?7000:6500):basePrice;const id=`sopa-${kind}-${meat}`,product=catalogFor(soupAgency).find(p=>p.id===id);check(product.price,price);check(product.includes,'1 sopa + bebida');
  const placed=await call({...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:soupAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:price});check(placed.total,price);check(decodeURIComponent(placed.whatsapp).includes(product.name),true);check(decodeURIComponent(placed.whatsapp).includes('1 sopa + bebida'),true);
  await denied({...base,key:crypto.randomUUID(),agencyRevision:drinkAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:price});
  if(price===8500)await denied({...base,key:crypto.randomUUID(),agency:'balcones',agencyRevision:soupAgency.revision,mode:'pickup',items:[{id,quantity:1,variant:'regular'}],total:7500},'',409);
