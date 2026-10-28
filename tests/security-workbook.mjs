@@ -137,8 +137,8 @@ assert.ok(exportSource.includes('Usuario'));
 assert.ok(exportSource.includes('Rol'));
 assert.ok(exportSource.includes('Agencia'));
 assert.ok(exportSource.includes('Estado'));
-assert.ok(!/pinHash|password|salt|\\.hash|\\.pin\\b/i.test(exportSource));
-assertions += 6;
+for (const secretField of ['pinHash', 'password', 'salt', '.hash', '.pin']) assert.ok(!exportSource.includes(secretField));
+assertions += 10;
 
 // Set up a temporary master account using a test-only bootstrap secret.
 await denied({
@@ -175,7 +175,7 @@ await denied({ action: 'resetUserPin', id: id('cashier') }, cookies.cashier, 403
 const reset = await call({ action: 'resetUserPin', id: id('cashier') }, master);
 check(reset.ok, true);
 check(reset.username, 'cashier');
-check(/^\\d{8}$/.test(reset.pin), true);
+check(reset.pin.length === 8 && [...reset.pin].every((digit) => digit >= '0' && digit <= '9'), true);
 const after = sqlite.prepare('SELECT hash, salt, version FROM staff WHERE id=?').get(id('cashier'));
 check(after.salt !== before.salt, true);
 check(after.version, before.version + 1);
