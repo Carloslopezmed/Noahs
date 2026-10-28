@@ -3,8 +3,9 @@ import {readFileSync,readdirSync,mkdirSync,writeFileSync} from 'node:fs';
 import ts from 'typescript';
 import assert from 'node:assert/strict';
 mkdirSync('.sites-runtime/tests',{recursive:true});
-for(const name of ['catalog','service']){const js=ts.transpileModule(readFileSync(`lib/noahs/${name}.ts`,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace("from './catalog'","from './catalog.mjs'");writeFileSync(`.sites-runtime/tests/${name}.mjs`,js);}
+for(const name of ['catalog','service','xlsx']){const js=ts.transpileModule(readFileSync(`lib/noahs/${name}.ts`,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace("from './catalog'","from './catalog.mjs'");writeFileSync(`.sites-runtime/tests/${name}.mjs`,js);}
 const {createService}=await import('../.sites-runtime/tests/service.mjs');
+const {makeXlsx}=await import('../.sites-runtime/tests/xlsx.mjs');
 const {products:fixtureProducts}=await import('../.sites-runtime/tests/catalog.mjs');
 const sqlite=new DatabaseSync(':memory:');for(const file of readdirSync('drizzle').filter(f=>f.endsWith('.sql')).sort())sqlite.exec(readFileSync('drizzle/'+file,'utf8'));
 function statement(sql){let args=[];const s={bind(...a){args=a;return s;},async first(){return sqlite.prepare(sql).get(...args)||null;},async all(){return {results:sqlite.prepare(sql).all(...args)};},async run(){const r=sqlite.prepare(sql).run(...args);return {meta:{changes:Number(r.changes)}};}};return s;}
@@ -13,6 +14,36 @@ const app=createService(db);let assertions=0;
 async function call(body,cookie='',identity=null){if(body.action==='place'&&Array.isArray(body.items))body={...body,items:body.items.map(i=>fixtureProducts.find(p=>p.id===i.id)?.category==='Hamburguesas'&&i.variant!=='single'&&i.side===undefined?{...i,side:'fries'}:i)};return app.dispatch(new Request('https://noahs.test/api/noahs',{method:'POST',headers:{cookie}}),body,identity);}
 const check=(a,b)=>{assert.deepEqual(a,b);assertions++;};
 async function denied(body,cookie,status){await assert.rejects(()=>call(body,cookie),e=>!status||e.status===status);assertions++;}
+
+const workbook=makeXlsx([['Nombre','Usuario','Rol','Agencia','Estado'],['José & Ana','user<1>','Maestro','Plaza Balcones','Activo'],['Texto','=1+1','Caja','Peronia','Activo']]);
+const workbookView=new DataView(workbook.buffer,workbook.byteOffset,workbook.byteLength);
+check(workbookView.getUint32(0,true),0x04034b50);
+const eocdOffset=workbook.byteLength-22;
+const eocd=new DataView(workbook.buffer,workbook.byteOffset+eocdOffset,22);
+check(eocd.getUint32(0,true),0x06054b50);
+const entryCount=eocd.getUint16(10,true);check(entryCount,5);
+let centralOffset=eocd.getUint32(16,true);
+const workbookFiles={};
+const decoder=new TextDecoder();
+for(let i=0;i<entryCount;i++){
+ const central=new DataView(workbook.buffer,workbook.byteOffset+centralOffset);
+ check(central.getUint32(0,true),0x02014b50);
+ const nameLength=central.getUint16(28,true),extraLength=central.getUint16(30,true),commentLength=central.getUint16(32,true);
+ const filename=decoder.decode(workbook.subarray(centralOffset+46,centralOffset+46+nameLength));
+ const localOffset=central.getUint32(42,true),dataLength=central.getUint32(24,true);
+ const local=new DataView(workbook.buffer,workbook.byteOffset+localOffset);
+ const localNameLength=local.getUint16(26,true),localExtraLength=local.getUint16(28,true);
+ const dataOffset=localOffset+30+localNameLength+localExtraLength;
+ workbookFiles[filename]=decoder.decode(workbook.subarray(dataOffset,dataOffset+dataLength));
+ centralOffset+=46+nameLength+extraLength+commentLength;
+}
+check(Object.keys(workbookFiles).sort(),['[Content_Types].xml','_rels/.rels','xl/_rels/workbook.xml.rels','xl/workbook.xml','xl/worksheets/sheet1.xml'].sort());
+const sheetXml=workbookFiles['xl/worksheets/sheet1.xml'];
+check(sheetXml.includes('José &amp; Ana'),true);
+check(sheetXml.includes('user&lt;1&gt;'),true);
+check(sheetXml.includes('<c r="B3" t="inlineStr">'),true);
+check(sheetXml.includes('=1+1'),true);
+
 
 const legacyHoursDefaults=(await import('../.sites-runtime/tests/catalog.mjs')).agencyDefaults;
 for(const a of legacyHoursDefaults)sqlite.prepare('INSERT INTO agencies(id,data) VALUES (?,?)').run(a.id,JSON.stringify({...a,open:'09:00',close:'20:00'}));
@@ -25,6 +56,19 @@ check(sqlite.prepare('SELECT hash FROM staff WHERE username=?').get('owner').has
 for(const [username,role,agency] of [['manager','manager','peronia'],['cashier','cashier','peronia'],['kitchen','kitchen','peronia'],['driver','driver','peronia'],['driver2','driver','peronia'],['outsider','driver','satelite']])await call({action:'saveUser',username,name:username,role,agency,pin:'12345678',active:true},master);
 const cookies={};for(const name of ['manager','cashier','kitchen','driver','driver2','outsider'])cookies[name]=(await call({action:'login',username:name,pin:'12345678'})).cookie;
 const staff=sqlite.prepare('SELECT * FROM staff').all(),id=n=>staff.find(u=>u.username===n).id;
+const cashierBeforeReset=sqlite.prepare('SELECT salt,version FROM staff WHERE id=?').get(id('cashier'));
+await denied({action:'resetUserPin',id:id('outsider')},cookies.manager,403);
+await denied({action:'resetUserPin',id:id('cashier')},cookies.cashier,403);
+const resetPin=await call({action:'resetUserPin',id:id('cashier')},master);
+check(resetPin.ok,true);check(resetPin.username,'cashier');check(/^\d{8}$/.test(resetPin.pin),true);
+const cashierAfterReset=sqlite.prepare('SELECT hash,salt,version FROM staff WHERE id=?').get(id('cashier'));
+check(cashierAfterReset.salt!==cashierBeforeReset.salt,true);check(cashierAfterReset.version,cashierBeforeReset.version+1);check(cashierAfterReset.hash!==resetPin.pin,true);
+await denied({action:'me'},cookies.cashier,401);
+const newCashierSession=await call({action:'login',username:'cashier',pin:resetPin.pin});check(!!newCashierSession.cookie,true);
+await denied({action:'login',username:'cashier',pin:'12345678'},'',401);
+check(sqlite.prepare("SELECT COUNT(*) n FROM events WHERE action='reset-user-pin'").get().n,1);
+await denied({action:'resetUserPin',id:id('owner')},cookies.manager,403);
+await denied({action:'resetUserPin',id:id('owner')},master,400);
 await denied({action:'login',username:'driver',pin:'00000000'},'',401);
 await denied({action:'saveUser',username:'bad',name:'bad',role:'master',pin:'12345678'},cookies.manager,403);
 await denied({action:'saveUser',username:'bad',name:'bad',role:'driver',agency:'satelite',pin:'12345678'},cookies.manager,403);
