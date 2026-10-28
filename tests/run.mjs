@@ -65,6 +65,7 @@ const cashierAfterReset=sqlite.prepare('SELECT hash,salt,version FROM staff WHER
 check(cashierAfterReset.salt!==cashierBeforeReset.salt,true);check(cashierAfterReset.version,cashierBeforeReset.version+1);check(cashierAfterReset.hash!==resetPin.pin,true);
 await denied({action:'me'},cookies.cashier,401);
 const newCashierSession=await call({action:'login',username:'cashier',pin:resetPin.pin});check(!!newCashierSession.cookie,true);
+cookies.cashier=newCashierSession.cookie;
 await denied({action:'login',username:'cashier',pin:'12345678'},'',401);
 check(sqlite.prepare("SELECT COUNT(*) n FROM events WHERE action='reset-user-pin'").get().n,1);
 await denied({action:'resetUserPin',id:id('owner')},cookies.manager,403);
