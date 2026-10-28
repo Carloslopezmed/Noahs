@@ -10,7 +10,7 @@ const {products:fixtureProducts}=await import('../.sites-runtime/tests/catalog.m
 const sqlite=new DatabaseSync(':memory:');for(const file of readdirSync('drizzle').filter(f=>f.endsWith('.sql')).sort())sqlite.exec(readFileSync('drizzle/'+file,'utf8'));
 function statement(sql){let args=[];const s={bind(...a){args=a;return s;},async first(){return sqlite.prepare(sql).get(...args)||null;},async all(){return {results:sqlite.prepare(sql).all(...args)};},async run(){const r=sqlite.prepare(sql).run(...args);return {meta:{changes:Number(r.changes)}};}};return s;}
 const db={prepare:statement,async batch(stmts){sqlite.exec('BEGIN');try{const r=[];for(const s of stmts)r.push(await s.run());sqlite.exec('COMMIT');return r;}catch(e){sqlite.exec('ROLLBACK');throw e;}}};
-const app=createService(db);let assertions=0;
+const TEST_BOOTSTRAP_SECRET='noahs-ci-bootstrap-secret';const app=createService(db,TEST_BOOTSTRAP_SECRET);let assertions=0;
 async function call(body,cookie='',identity=null){if(body.action==='place'&&Array.isArray(body.items))body={...body,items:body.items.map(i=>fixtureProducts.find(p=>p.id===i.id)?.category==='Hamburguesas'&&i.variant!=='single'&&i.side===undefined?{...i,side:'fries'}:i)};return app.dispatch(new Request('https://noahs.test/api/noahs',{method:'POST',headers:{cookie}}),body,identity);}
 const check=(a,b)=>{assert.deepEqual(a,b);assertions++;};
 async function denied(body,cookie,status){await assert.rejects(()=>call(body,cookie),e=>!status||e.status===status);assertions++;}
@@ -49,9 +49,9 @@ const legacyHoursDefaults=(await import('../.sites-runtime/tests/catalog.mjs')).
 for(const a of legacyHoursDefaults)sqlite.prepare('INSERT INTO agencies(id,data) VALUES (?,?)').run(a.id,JSON.stringify({...a,open:'09:00',close:'20:00'}));
 
 const cat=await call({action:'catalog'});check(cat.agencies.map(a=>[a.id,a.whatsapp,a.deliveryEnabled,a.freeDelivery]).sort(),[['balcones','50254640659',true,true],['peronia','50259102450',true,true],['satelite','50256142755',true,true]]);check(cat.agencies.length,3);check(cat.agencies.map(a=>[a.open,a.close]),[['11:00','21:00'],['11:00','21:00'],['11:00','21:00']]);
-await denied({action:'bootstrap',name:'Owner',username:'owner',pin:'12345678'},'',401);
-const owner=await call({action:'bootstrap',name:'Owner fixture',username:'owner',pin:'12345678'},'','test-owner');const master=owner.cookie;
-await denied({action:'bootstrap',name:'Other',username:'other',pin:'12345678'},'',401);
+await denied({action:'bootstrap',bootstrapSecret:'wrong-test-secret',name:'Owner',username:'owner',pin:'12345678'},'',401);
+const owner=await call({action:'bootstrap',bootstrapSecret:TEST_BOOTSTRAP_SECRET,name:'Owner fixture',username:'owner',pin:'12345678'},'','test-owner');const master=owner.cookie;
+await denied({action:'bootstrap',bootstrapSecret:TEST_BOOTSTRAP_SECRET,name:'Other',username:'other',pin:'12345678'},'',409);
 check(sqlite.prepare('SELECT hash FROM staff WHERE username=?').get('owner').hash==='12345678',false);
 for(const [username,role,agency] of [['manager','manager','peronia'],['cashier','cashier','peronia'],['kitchen','kitchen','peronia'],['driver','driver','peronia'],['driver2','driver','peronia'],['outsider','driver','satelite']])await call({action:'saveUser',username,name:username,role,agency,pin:'12345678',active:true},master);
 const cookies={};for(const name of ['manager','cashier','kitchen','driver','driver2','outsider'])cookies[name]=(await call({action:'login',username:name,pin:'12345678'})).cookie;
