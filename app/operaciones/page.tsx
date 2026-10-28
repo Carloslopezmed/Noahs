@@ -7,14 +7,14 @@ import { makeXlsx } from '@/lib/noahs/xlsx';
 type User = { id: string; name: string; username: string; role: string; agency?: string };
 type Dashboard = { orders?: any[]; finance?: any; agencies?: any[]; staff?: any[] };
 
-async function api(body: Record<string, unknown>) {
+async function api(body: Record<string, unknown>): Promise<any> {
   const response = await fetch('/api/noahs', {
     method: 'POST',
     cache: 'no-store',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
-  const data = await response.json();
+  const data: any = await response.json();
   if (!response.ok) throw new Error(data.error || 'No se pudo completar la operación.');
   return data;
 }
