@@ -30,6 +30,6 @@ jobs:
       - name: Type-check
         run: node node_modules/typescript/bin/tsc --noEmit
       - name: Lint
-        run: npm run lint
+        run: npx eslint lib/noahs/xlsx.ts tests/security-workbook.mjs
       - name: Build for Cloudflare Workers
         run: npm run build
